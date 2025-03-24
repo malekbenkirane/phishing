@@ -1,5 +1,6 @@
 ﻿# -*- coding: utf-8 -*-
 from flask import Flask, render_template, request, redirect
+import os  # Ajout de l'import os pour gérer les variables d'environnement
 
 app = Flask(__name__)
 
@@ -25,5 +26,5 @@ def submit():
 
 # Lancer le serveur Flask
 if __name__ == "__main__":
-    app.run(debug=True)
-
+    port = int(os.environ.get("PORT", 10000))  # Utiliser le port de Render
+    app.run(host="0.0.0.0", port=port, debug=True)
