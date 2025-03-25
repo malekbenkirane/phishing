@@ -1,8 +1,9 @@
-﻿from flask import Flask, render_template, request, redirect, send_file, session
+﻿from flask import Flask, render_template, request, redirect, Response, send_file, session
 from flask_sqlalchemy import SQLAlchemy
 import os
 import smtplib
 from email.mime.text import MIMEText
+import matplotlib.pyplot as plt
 from fpdf import FPDF
 
 app = Flask(__name__)
@@ -21,8 +22,9 @@ class Interaction(db.Model):
     event_type = db.Column(db.String(50), nullable=False)  # reçu, ouvert, cliqué, soumis
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-# Création des tables
-db.create_all()
+# Créer les tables dans le contexte de l'application
+with app.app_context():
+    db.create_all()
 
 # Identifiants admin
 ADMIN_USERNAME = "Reg"
@@ -36,19 +38,15 @@ SENDER_PASSWORD = "skju prcn iisd ginx"
 def send_email(recipient_email, phishing_link):
     email_content = f"""
     Bonjour,
-
-    Nous avons constaté une activité inhabituelle sur votre compte Microsoft. Afin de protéger vos informations personnelles, nous vous prions de vérifier votre identité dès que possible en suivant le lien ci-dessous :
-    
-    👉 <a href="{phishing_link}">Vérifiez maintenant votre compte Microsoft</a>
-    
-    Si vous avez des questions, n'hésitez pas à contacter notre support.
-
-    Cordialement,
-    L'équipe Support Microsoft
+    Nous avons détecté une connexion suspecte sur votre compte Outlook.
+    Pour des raisons de sécurité, veuillez confirmer votre identité :
+    👉 <a href=\"{phishing_link}\">Cliquez ici pour vérifier votre compte</a>
+    Merci,
+    L'équipe Sécurité IT
     """
     try:
         msg = MIMEText(email_content, "html")
-        msg["Subject"] = "Vérification de votre compte Microsoft"
+        msg["Subject"] = "Alerte Sécurité Outlook"
         msg["From"] = "Régence Cybersécurité <regence.informatique@gmail.com>"
         msg["To"] = recipient_email
 
@@ -62,25 +60,6 @@ def send_email(recipient_email, phishing_link):
         db.session.commit()
     except Exception as e:
         print(f"❌ Erreur : {e}")
-
-@app.route("/add_emails", methods=["GET", "POST"])
-def add_emails():
-    if request.method == "POST":
-        # Récupérer les emails saisis dans le formulaire
-        email_list = request.form.get("emails")
-        
-        # Diviser les emails par des virgules ou des retours à la ligne
-        emails = [email.strip() for email in email_list.split(",")]
-        
-        phishing_link = "https://outlook-regence.onrender.com/"
-        
-        # Envoyer l'email de phishing à chaque email dans la liste
-        for email in emails:
-            send_email(email, phishing_link)
-        
-        return "Emails envoyés avec succès !"
-    
-    return render_template("add_emails.html")
 
 @app.route("/stats", methods=["GET", "POST"])
 def stats():
@@ -102,6 +81,13 @@ def stats_dashboard():
     total_sent = Interaction.query.filter_by(event_type="email envoyé").count()
     total_clicked = Interaction.query.filter_by(event_type="lien cliqué").count()
     total_submitted = Interaction.query.filter_by(event_type="formulaire soumis").count()
+    
+    labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
+    values = [total_sent, total_clicked, total_submitted]
+    plt.figure(figsize=(6,6))
+    plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
+    plt.title("Statistiques du test de phishing")
+    plt.savefig("static/stats.png")
     
     return render_template("dashboard.html", total_sent=total_sent, total_clicked=total_clicked, total_submitted=total_submitted)
 
