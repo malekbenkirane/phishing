@@ -1,11 +1,98 @@
-﻿<!-- dashboard.html -->
-<html>
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - Statistiques</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            margin: 20px;
+            background-color: #f4f4f4;
+        }
+        .container {
+            max-width: 1200px;
+            margin: auto;
+            padding: 20px;
+            background-color: white;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            text-align: center;
+            color: #333;
+        }
+        .stats-box {
+            display: flex;
+            justify-content: space-around;
+            margin-bottom: 30px;
+        }
+        .stat {
+            text-align: center;
+            padding: 20px;
+            background-color: #f9f9f9;
+            border-radius: 8px;
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            width: 30%;
+        }
+        .stat h2 {
+            font-size: 24px;
+            margin: 10px 0;
+            color: #0078D4;
+        }
+        .stat p {
+            font-size: 18px;
+            color: #555;
+        }
+        .stats-img {
+            text-align: center;
+        }
+        .stats-img img {
+            max-width: 100%;
+            height: auto;
+            margin-bottom: 20px;
+        }
+    </style>
+</head>
 <body>
-    <h2>Tableau de bord des statistiques de phishing</h2>
-    <p>Emails envoyés : {{ total_sent }}</p>
-    <p>Liens cliqués : {{ total_clicked }}</p>
-    <p>Formulaires remplis : {{ total_submitted }}</p>
-    <img src="{{ url_for('static', filename='stats.png') }}" alt="Statistiques">
-    <a href="/download_pdf">Télécharger le rapport PDF</a>
+    <div class="container">
+        <h1>Tableau de Bord des Statistiques de Phishing</h1>
+
+        <!-- Statistiques Détails -->
+        <div class="stats-box">
+            <div class="stat">
+                <h2>{{ total_sent }}</h2>
+                <p>Email envoyés</p>
+            </div>
+            <div class="stat">
+                <h2>{{ total_clicked }}</h2>
+                <p>Liens cliqués</p>
+            </div>
+            <div class="stat">
+                <h2>{{ total_submitted }}</h2>
+                <p>Formulaires remplis</p>
+            </div>
+        </div>
+
+        <!-- Explication des statistiques -->
+        <div class="explanation">
+            <h2>Explications des Statistiques</h2>
+            <ul>
+                <li><strong>Emails envoyés :</strong> {{ explanation['Emails envoyés'] }}</li>
+                <li><strong>Liens cliqués :</strong> {{ explanation['Liens cliqués'] }}</li>
+                <li><strong>Formulaires remplis :</strong> {{ explanation['Formulaires remplis'] }}</li>
+            </ul>
+        </div>
+
+        <!-- Affichage des graphiques -->
+        <div class="stats-img">
+            <!-- Graphique à barres -->
+            <img src="{{ url_for('static', filename='stats_bar.png') }}" alt="Graphique des statistiques de phishing">
+            <!-- Graphique en courbe -->
+            <img src="{{ url_for('static', filename='stats_line.png') }}" alt="Evolution des clics au fil du temps">
+            <!-- Histogramme -->
+            <img src="{{ url_for('static', filename='stats_histogram.png') }}" alt="Durée des interactions des utilisateurs">
+        </div>
+    </div>
 </body>
 </html>

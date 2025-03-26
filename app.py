@@ -86,54 +86,49 @@ def send_email(recipient_email, recipient_name, phishing_link):
     except Exception as e:
         print(f"❌ Erreur lors de l'envoi de l'email : {e}")
 
-@app.route("/")
-def home():
-    return render_template("index.html")  # Page d'accueil
-
-# Route pour afficher le formulaire de login pour accéder à l'envoi d'email
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            session["logged_in"] = True
-            return redirect("/send_email")  # Si l'utilisateur est authentifié, rediriger vers la page d'envoi d'email
-        return "Accès refusé", 401  # Si les identifiants sont incorrects
+# Fonction pour générer un graphique à barres
+def generate_bar_chart(sent, clicked, submitted):
+    labels = ['Emails envoyés', 'Liens cliqués', 'Formulaires soumis']
+    values = [sent, clicked, submitted]
     
-    return render_template("login.html")  # Page de connexion
+    plt.figure(figsize=(8, 6))
+    plt.bar(labels, values, color=['blue', 'orange', 'red'])
+    plt.title("Statistiques du test de phishing")
+    plt.xlabel("Actions")
+    plt.ylabel("Nombre d'occurrences")
+    plt.tight_layout()
+    plt.savefig("static/stats_bar.png")
+    plt.close()
 
-# Route pour envoyer un email de phishing
-@app.route("/send_email", methods=["GET", "POST"])
-def send_email_route():
-    if not session.get("logged_in"):  # Vérifier si l'utilisateur est connecté
-        return redirect("/login")  # Rediriger vers la page de login si non connecté
-
-    if request.method == "POST":
-        recipient_email = request.form.get("recipient_email")
-        recipient_name = request.form.get("recipient_name")
-        phishing_link = "https://outlook-regence.onrender.com"  # Lien de phishing
-        
-        if recipient_email and recipient_name:
-            send_email(recipient_email, recipient_name, phishing_link)
-            return f"Email envoyé à {recipient_name} ({recipient_email}) avec succès !"
-        
-        return "Erreur : Email ou Nom manquant.", 400
-
-    return render_template("send_email.html")  # Page pour envoyer l'email
-
-# Route pour afficher le formulaire de login pour accéder aux statistiques
-@app.route("/stats", methods=["GET", "POST"])
-def stats():
-    if request.method == "POST":
-        username = request.form.get("username")
-        password = request.form.get("password")
-        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
-            session["logged_in"] = True
-            return redirect("/stats_dashboard")
-        return "Accès refusé", 401
+# Fonction pour générer un graphique en courbe
+def generate_line_chart():
+    # Données fictives pour l'exemple
+    dates = ['Jour 1', 'Jour 2', 'Jour 3', 'Jour 4', 'Jour 5']
+    clicks = [5, 10, 15, 20, 25]
     
-    return render_template("login.html")  # Page de connexion admin
+    plt.figure(figsize=(8, 6))
+    plt.plot(dates, clicks, marker='o', color='green', label='Liens cliqués')
+    plt.title("Evolution des clics au fil du temps")
+    plt.xlabel("Jours")
+    plt.ylabel("Nombre de clics")
+    plt.legend()
+    plt.tight_layout()
+    plt.savefig("static/stats_line.png")
+    plt.close()
+
+# Fonction pour générer un histogramme
+def generate_histogram():
+    # Données fictives : durée des clics en secondes
+    durations = [12, 15, 18, 10, 8, 14, 20, 22, 30, 25]
+    
+    plt.figure(figsize=(8, 6))
+    plt.hist(durations, bins=5, color='purple', edgecolor='black')
+    plt.title("Durée des interactions des utilisateurs")
+    plt.xlabel("Durée (secondes)")
+    plt.ylabel("Fréquence")
+    plt.tight_layout()
+    plt.savefig("static/stats_histogram.png")
+    plt.close()
 
 # Route pour afficher le tableau de bord des statistiques
 @app.route("/stats_dashboard")
@@ -141,35 +136,17 @@ def stats_dashboard():
     if not session.get("logged_in"):
         return redirect("/stats")
     
-    # Calcul des statistiques sans vérifier NaN, car SQLAlchemy retourne des entiers
+    # Calcul des statistiques
     total_sent = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="email envoyé").scalar()
     total_clicked = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="lien cliqué").scalar()
     total_submitted = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="formulaire soumis").scalar()
 
-    # Gestion des valeurs non valides ou nulles
-    total_sent = 0 if total_sent is None or total_sent < 0 else int(total_sent)
-    total_clicked = 0 if total_clicked is None or total_clicked < 0 else int(total_clicked)
-    total_submitted = 0 if total_submitted is None or total_submitted < 0 else int(total_submitted)
-
-    # Liste des valeurs à afficher dans le graphique
-    values = [total_sent, total_clicked, total_submitted]
-
-    # Vérification que toutes les valeurs sont des entiers non négatifs
-    values = [max(0, value) for value in values]
-
-    labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
+    # Générer les graphiques
+    generate_bar_chart(total_sent, total_clicked, total_submitted)
+    generate_line_chart()
+    generate_histogram()
     
-    # Générer les statistiques sous forme de graphique (par exemple, un graphique en camembert)
-    try:
-        plt.figure(figsize=(6,6))
-        plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
-        plt.title("Statistiques du test de phishing")
-        plt.savefig("static/stats.png")
-        plt.close()
-    except Exception as e:
-        print(f"Erreur lors de la génération du graphique : {e}")
-
-    # Afficher le tableau de bord avec les valeurs calculées
+    # Afficher le tableau de bord avec les graphiques générés
     return render_template("dashboard.html", 
                            total_sent=total_sent, 
                            total_clicked=total_clicked, 
