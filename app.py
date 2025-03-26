@@ -1,4 +1,4 @@
-﻿from flask import Flask, render_template, request, redirect, Response, send_file, session
+﻿from flask import Flask, render_template, request, redirect, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 import os
 import smtplib
@@ -59,7 +59,8 @@ def send_email(recipient_email, recipient_name, phishing_link):
         server.login(SENDER_EMAIL, SENDER_PASSWORD)
         server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
         server.quit()
-        
+
+        # Sauvegarder l'envoi de l'email dans la base de données
         db.session.add(Interaction(email=recipient_email, event_type="email envoyé"))
         db.session.commit()
     except Exception as e:
@@ -69,7 +70,7 @@ def send_email(recipient_email, recipient_name, phishing_link):
 def send_email_route():
     recipient_email = request.form.get("recipient_email")
     recipient_name = request.form.get("recipient_name")
-    phishing_link = "https://outlook-regence.onrender.com/login"  # Redirection vers la page de phishing
+    phishing_link = "https://outlook-regence.onrender.com"
     
     if recipient_email and recipient_name:
         send_email(recipient_email, recipient_name, phishing_link)
@@ -77,57 +78,48 @@ def send_email_route():
     
     return "Erreur : Email ou Nom manquant.", 400
 
-@app.route("/", methods=["GET", "POST"])
-def home():
-    # Redirige vers la page de phishing (login)
-    return redirect("/login")
-
-@app.route("/login", methods=["GET", "POST"])
-def login():
-    if request.method == "POST":
-        email = request.form.get("email")
-        password = request.form.get("password")
-        # Enregistrez les identifiants dans la base de données ou traitez les données comme vous le souhaitez
-        db.session.add(Interaction(email=email, event_type="formulaire soumis"))
-        db.session.commit()
-        return "Merci de vous être connecté. Vos informations ont été reçues."
-    
-    return render_template("login.html")
-
 @app.route("/stats", methods=["GET", "POST"])
 def stats():
+    # Gérer la connexion de l'administrateur
     if request.method == "POST":
         username = request.form.get("username")
         password = request.form.get("password")
         if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
             session["logged_in"] = True
-            return redirect("/stats_dashboard")
-        return "Accès refusé", 401
+            return redirect("/stats_dashboard")  # Redirige vers le tableau de bord
+        return "Accès refusé", 401  # Si l'identifiant est incorrect
     
-    return render_template("login.html")
+    # Si l'utilisateur n'est pas connecté, afficher le formulaire de connexion
+    if not session.get("logged_in"):
+        return render_template("login.html")  # Assurez-vous que ce fichier existe avec un formulaire de login
+    
+    # Si l'utilisateur est connecté, rediriger vers le tableau de bord
+    return redirect("/stats_dashboard")
 
 @app.route("/stats_dashboard")
 def stats_dashboard():
+    # Vérifier si l'utilisateur est connecté avant d'accéder au tableau de bord
     if not session.get("logged_in"):
-        return redirect("/stats")
+        return redirect("/stats")  # Redirige vers la page de connexion si l'utilisateur n'est pas connecté
     
     total_sent = Interaction.query.filter_by(event_type="email envoyé").count()
     total_clicked = Interaction.query.filter_by(event_type="lien cliqué").count()
     total_submitted = Interaction.query.filter_by(event_type="formulaire soumis").count()
-    
+
+    # Générer un graphique des statistiques
     labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
     values = [total_sent, total_clicked, total_submitted]
     plt.figure(figsize=(6,6))
     plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
     plt.title("Statistiques du test de phishing")
     plt.savefig("static/stats.png")
-    
+
     return render_template("dashboard.html", total_sent=total_sent, total_clicked=total_clicked, total_submitted=total_submitted)
 
 @app.route("/download_pdf")
 def download_pdf():
     if not session.get("logged_in"):
-        return redirect("/stats")
+        return redirect("/stats")  # Si l'utilisateur n'est pas connecté, rediriger vers la page de connexion
     
     pdf = FPDF()
     pdf.add_page()
@@ -139,11 +131,11 @@ def download_pdf():
     total_sent = Interaction.query.filter_by(event_type="email envoyé").count()
     total_clicked = Interaction.query.filter_by(event_type="lien cliqué").count()
     total_submitted = Interaction.query.filter_by(event_type="formulaire soumis").count()
-    
+
     pdf.cell(200, 10, f"Emails envoyés : {total_sent}", ln=True)
     pdf.cell(200, 10, f"Liens cliqués : {total_clicked}", ln=True)
     pdf.cell(200, 10, f"Formulaires remplis : {total_submitted}", ln=True)
-    
+
     pdf.output("report.pdf")
     return send_file("report.pdf", as_attachment=True)
 
