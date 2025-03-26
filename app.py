@@ -22,7 +22,7 @@ class Interaction(db.Model):
     event_type = db.Column(db.String(50), nullable=False)  # reçu, ouvert, cliqué, soumis
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
-# Créer les tables dans le contexte de l'application
+# Création des tables
 with app.app_context():
     db.create_all()
 
@@ -30,24 +30,28 @@ with app.app_context():
 ADMIN_USERNAME = "Reg"
 ADMIN_PASSWORD = "Saouda2025!!"
 
-SMTP_SERVER = "smtp.gmail.com"
+# Configuration SMTP Office365
+SMTP_SERVER = "smtp.office365.com"
 SMTP_PORT = 587
-SENDER_EMAIL = "regence.informatique@gmail.com"
-SENDER_PASSWORD = "skju prcn iisd ginx"
+SENDER_EMAIL = "regence.informatique@liquidationtravail.com"
+SENDER_PASSWORD = "Saouda2025!!"
 
 def send_email(recipient_email, phishing_link):
     email_content = f"""
     Bonjour,
-    Nous avons détecté une connexion suspecte sur votre compte Outlook.
-    Pour des raisons de sécurité, veuillez confirmer votre identité :
-    👉 <a href=\"{phishing_link}\">Cliquez ici pour vérifier votre compte</a>
-    Merci,
-    L'équipe Sécurité IT
+    
+    Votre compte Microsoft nécessite une vérification urgente pour éviter une interruption de service.
+    Veuillez confirmer votre identité dès maintenant :
+    
+    👉 <a href=\"{phishing_link}\">Cliquez ici pour valider votre compte</a>
+    
+    Merci de votre coopération.
+    L'équipe Microsoft Sécurité
     """
     try:
         msg = MIMEText(email_content, "html")
-        msg["Subject"] = "Alerte Sécurité Outlook"
-        msg["From"] = "Régence Cybersécurité <regence.informatique@gmail.com>"
+        msg["Subject"] = "Action requise : Vérification de votre compte Microsoft"
+        msg["From"] = f"Microsoft Support <{SENDER_EMAIL}>"
         msg["To"] = recipient_email
 
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
