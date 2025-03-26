@@ -65,6 +65,10 @@ def send_email(recipient_email, recipient_name, phishing_link):
     except Exception as e:
         print(f"❌ Erreur : {e}")
 
+@app.route("/")
+def home():
+    return "Bienvenue sur la page d'accueil de test de phishing."
+
 @app.route("/send_email", methods=["POST"])
 def send_email_route():
     recipient_email = request.form.get("recipient_email")
@@ -103,6 +107,11 @@ def stats_dashboard():
     plt.figure(figsize=(6,6))
     plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
     plt.title("Statistiques du test de phishing")
+    
+    # Assurer l'existence du dossier static
+    if not os.path.exists('static'):
+        os.makedirs('static')
+    
     plt.savefig("static/stats.png")
     
     return render_template("dashboard.html", total_sent=total_sent, total_clicked=total_clicked, total_submitted=total_submitted)
