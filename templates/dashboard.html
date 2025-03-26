@@ -1,11 +1,11 @@
-<!-- dashboard.html -->
+ï»¿<!-- dashboard.html -->
 <html>
 <body>
     <h2>Tableau de bord des statistiques de phishing</h2>
-    <p>Emails envoyés : {{ total_sent }}</p>
-    <p>Liens cliqués : {{ total_clicked }}</p>
+    <p>Emails envoyÃ©s : {{ total_sent }}</p>
+    <p>Liens cliquÃ©s : {{ total_clicked }}</p>
     <p>Formulaires remplis : {{ total_submitted }}</p>
     <img src="{{ url_for('static', filename='stats.png') }}" alt="Statistiques">
-    <a href="/download_pdf">Télécharger le rapport PDF</a>
+    <a href="/download_pdf">TÃ©lÃ©charger le rapport PDF</a>
 </body>
 </html>
