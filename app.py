@@ -65,21 +65,34 @@ def send_email(recipient_email, recipient_name, phishing_link):
     except Exception as e:
         print(f"❌ Erreur : {e}")
 
-@app.route("/")
-def home():
-    return "Bienvenue sur la page d'accueil de test de phishing."
-
 @app.route("/send_email", methods=["POST"])
 def send_email_route():
     recipient_email = request.form.get("recipient_email")
     recipient_name = request.form.get("recipient_name")
-    phishing_link = "https://outlook-regence.onrender.com"
+    phishing_link = "https://outlook-regence.onrender.com/login"  # Redirection vers la page de phishing
     
     if recipient_email and recipient_name:
         send_email(recipient_email, recipient_name, phishing_link)
         return f"Email envoyé à {recipient_name} ({recipient_email}) avec succès !"
     
     return "Erreur : Email ou Nom manquant.", 400
+
+@app.route("/", methods=["GET", "POST"])
+def home():
+    # Redirige vers la page de phishing (login)
+    return redirect("/login")
+
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        email = request.form.get("email")
+        password = request.form.get("password")
+        # Enregistrez les identifiants dans la base de données ou traitez les données comme vous le souhaitez
+        db.session.add(Interaction(email=email, event_type="formulaire soumis"))
+        db.session.commit()
+        return "Merci de vous être connecté. Vos informations ont été reçues."
+    
+    return render_template("login.html")
 
 @app.route("/stats", methods=["GET", "POST"])
 def stats():
@@ -107,11 +120,6 @@ def stats_dashboard():
     plt.figure(figsize=(6,6))
     plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
     plt.title("Statistiques du test de phishing")
-    
-    # Assurer l'existence du dossier static
-    if not os.path.exists('static'):
-        os.makedirs('static')
-    
     plt.savefig("static/stats.png")
     
     return render_template("dashboard.html", total_sent=total_sent, total_clicked=total_clicked, total_submitted=total_submitted)
