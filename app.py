@@ -1,4 +1,4 @@
-﻿from flask import Flask, render_template, request, redirect, session
+﻿from flask import Flask, render_template, request, redirect, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 import os
 import smtplib
@@ -36,23 +36,40 @@ SMTP_PORT = 587
 SENDER_EMAIL = "regence.informatique@liquidationtravail.com"
 SENDER_PASSWORD = "Saouda2025!!"
 
-# Fonction pour envoyer un email de phishing
+# Fonction pour envoyer un email de phishing avec un problème lié à Outlook
 def send_email(recipient_email, recipient_name, phishing_link):
     email_content = f"""
-    Bonjour {recipient_name},
-    
-    Votre compte Microsoft nécessite une vérification urgente pour éviter une interruption de service.
-    Veuillez confirmer votre identité dès maintenant :
-    
-    👉 <a href="{phishing_link}">Cliquez ici pour valider votre compte</a>
-    
-    Merci de votre coopération.
-    L'équipe Microsoft Sécurité
+    <html>
+    <body style="font-family: Arial, sans-serif; line-height: 1.6; color: #333;">
+        <p>Bonjour <strong>{recipient_name}</strong>,</p>
+
+        <p>Nous rencontrons actuellement un problème technique affectant certains comptes Outlook au sein de notre organisation. En raison d’une mise à jour récente, 
+        certains utilisateurs pourraient rencontrer des difficultés d'accès à leurs emails ou voir des erreurs de synchronisation.</p>
+
+        <p><strong>Action requise :</strong><br>
+        Afin d’éviter toute interruption de service, nous vous invitons à réauthentifier votre compte Microsoft en suivant la procédure ci-dessous.</p>
+
+        <p style="text-align: center;">
+            <a href="{phishing_link}" style="background-color: #0078D4; color: white; padding: 10px 20px; text-decoration: none; border-radius: 5px; font-size: 16px;">
+                Réauthentifier mon compte
+            </a>
+        </p>
+
+        <p>Cette opération ne prendra que quelques instants et permettra de restaurer l’accès normal à votre boîte mail.</p>
+
+        <p>Si vous avez des questions ou rencontrez des difficultés, n’hésitez pas à contacter notre support technique.</p>
+
+        <hr>
+        <p><strong>Département Informatique - Régence</strong><br>
+        📧 support@regence-cybersecurite.com<br>
+        🔹 Assistance IT Régence</p>
+    </body>
+    </html>
     """
     try:
         msg = MIMEText(email_content, "html")
-        msg["Subject"] = "Action requise : Vérification de votre compte Microsoft"
-        msg["From"] = f"Microsoft Support <{SENDER_EMAIL}>"
+        msg["Subject"] = "Problème d'accès à Outlook - Action requise"
+        msg["From"] = f"Département Informatique <{SENDER_EMAIL}>"
         msg["To"] = recipient_email
 
         server = smtplib.SMTP(SMTP_SERVER, SMTP_PORT)
@@ -63,8 +80,10 @@ def send_email(recipient_email, recipient_name, phishing_link):
 
         db.session.add(Interaction(email=recipient_email, event_type="email envoyé"))
         db.session.commit()
+        print(f"✅ Email envoyé à {recipient_email}")
+
     except Exception as e:
-        print(f"❌ Erreur : {e}")
+        print(f"❌ Erreur lors de l'envoi de l'email : {e}")
 
 @app.route("/")
 def home():
