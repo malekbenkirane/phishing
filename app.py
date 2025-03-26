@@ -1,4 +1,4 @@
-﻿from flask import Flask, render_template, request, redirect, session, send_file
+﻿from flask import Flask, render_template, request, redirect, session, send_file 
 from flask_sqlalchemy import SQLAlchemy
 import os
 import smtplib
@@ -61,8 +61,9 @@ def send_email(recipient_email, recipient_name, phishing_link):
 
         <hr>
         <p><strong>Département Informatique - Régence</strong><br>
-        📧 support@regence-cybersecurite.com<br>
-        🔹 Assistance IT Régence</p>
+        🔹 Assistance IT Régence<br>
+        🌐 www.regence.com<br>
+        📍 655 Rue de l'Argon, Québec, QC G2N 2G7</p>
     </body>
     </html>
     """
