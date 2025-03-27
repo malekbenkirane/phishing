@@ -61,9 +61,9 @@ def send_email(recipient_email, recipient_name, phishing_link):
 
         <hr>
         <p><strong>Département Informatique - Régence</strong><br>
-        ?? Assistance IT Régence<br>
-        ?? www.regence.com<br>
-        ?? 655 Rue de l'Argon, Québec, QC G2N 2G7</p>
+        Assistance IT Régence<br>
+        www.regence.com<br>
+        655 Rue de l'Argon, Québec, QC G2N 2G7</p>
     </body>
     </html>
     """
