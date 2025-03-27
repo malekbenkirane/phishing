@@ -3,96 +3,82 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tableau de Bord - Statistiques</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <style>
-        body {
-            font-family: Arial, sans-serif;
-            margin: 20px;
-            background-color: #f4f4f4;
-        }
-        .container {
-            max-width: 1200px;
-            margin: auto;
-            padding: 20px;
-            background-color: white;
-            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-        }
-        h1 {
-            text-align: center;
-            color: #333;
-        }
-        .stats-box {
-            display: flex;
-            justify-content: space-around;
-            margin-bottom: 30px;
-        }
-        .stat {
-            text-align: center;
-            padding: 20px;
-            background-color: #f9f9f9;
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            width: 30%;
-        }
-        .stat h2 {
-            font-size: 24px;
-            margin: 10px 0;
-            color: #0078D4;
-        }
-        .stat p {
-            font-size: 18px;
-            color: #555;
-        }
-        .stats-img {
-            text-align: center;
-        }
-        .stats-img img {
-            max-width: 100%;
-            height: auto;
-            margin-bottom: 20px;
-        }
-    </style>
+    <title>Tableau de Bord - Statistiques Phishing</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 </head>
-<body>
-    <div class="container">
-        <h1>Tableau de Bord des Statistiques de Phishing</h1>
+<body class="bg-gray-100 text-gray-900">
 
-        <!-- Statistiques Détails -->
-        <div class="stats-box">
-            <div class="stat">
-                <h2>{{ total_sent }}</h2>
-                <p>Email envoyés</p>
+    <div class="container mx-auto my-8 p-4 bg-white shadow-lg rounded-lg">
+        <h1 class="text-3xl font-semibold text-center mb-6">Tableau de Bord - Phishing</h1>
+        
+        <!-- Statistiques Générales -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6">
+            <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
+                <h3 class="text-lg font-semibold">Emails envoyés</h3>
+                <p id="emails-envoyes" class="text-2xl font-bold">1500</p>
+                <p class="text-sm text-gray-600">Nombre total d'emails envoyés.</p>
             </div>
-            <div class="stat">
-                <h2>{{ total_clicked }}</h2>
-                <p>Liens cliqués</p>
+            <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
+                <h3 class="text-lg font-semibold">Emails ouverts</h3>
+                <p id="emails-ouverts" class="text-2xl font-bold">1200</p>
+                <p class="text-sm text-gray-600">Nombre d'emails ouverts par les utilisateurs.</p>
             </div>
-            <div class="stat">
-                <h2>{{ total_submitted }}</h2>
-                <p>Formulaires remplis</p>
+            <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
+                <h3 class="text-lg font-semibold">Identifiants capturés</h3>
+                <p id="identifiants-captures" class="text-2xl font-bold">300</p>
+                <p class="text-sm text-gray-600">Nombre d'identifiants capturés via la fausse page.</p>
             </div>
         </div>
 
-        <!-- Explication des statistiques -->
-        <div class="explanation">
-            <h2>Explications des Statistiques</h2>
-            <ul>
-                <li><strong>Emails envoyés :</strong> {{ explanation['Emails envoyés'] }}</li>
-                <li><strong>Liens cliqués :</strong> {{ explanation['Liens cliqués'] }}</li>
-                <li><strong>Formulaires remplis :</strong> {{ explanation['Formulaires remplis'] }}</li>
+        <!-- Graphiques -->
+        <div class="mb-8">
+            <canvas id="emailChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Explications -->
+        <div class="bg-gray-100 p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Explications des Statistiques</h2>
+            <ul class="list-disc pl-6">
+                <li><strong>Emails envoyés :</strong> Ce chiffre représente tous les emails envoyés dans le cadre du test.</li>
+                <li><strong>Emails ouverts :</strong> Cela indique combien de personnes ont ouvert l'email de phishing, ce qui est essentiel pour mesurer l'efficacité de la campagne.</li>
+                <li><strong>Identifiants capturés :</strong> Ce nombre montre combien d'utilisateurs ont entré leurs informations sur la fausse page de connexion.</li>
             </ul>
         </div>
-
-        <!-- Affichage des graphiques -->
-        <div class="stats-img">
-            <!-- Graphique à barres -->
-            <img src="{{ url_for('static', filename='stats_bar.png') }}" alt="Graphique des statistiques de phishing">
-            <!-- Graphique en courbe -->
-            <img src="{{ url_for('static', filename='stats_line.png') }}" alt="Evolution des clics au fil du temps">
-            <!-- Histogramme -->
-            <img src="{{ url_for('static', filename='stats_histogram.png') }}" alt="Durée des interactions des utilisateurs">
-        </div>
     </div>
+
+    <script>
+        // Graphique des emails envoyés vs ouverts
+        var ctx = document.getElementById('emailChart').getContext('2d');
+        var emailChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Emails envoyés', 'Emails ouverts'],
+                datasets: [{
+                    label: 'Emails',
+                    data: [1500, 1200],
+                    backgroundColor: ['#4CAF50', '#FF9800'],
+                    borderColor: ['#388E3C', '#F57C00'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Mettre à jour les données en temps réel (AJAX, WebSocket, etc.)
+        // Exemple de mise à jour manuelle :
+        setInterval(function() {
+            // Simulation de mise à jour des données
+            document.getElementById('emails-envoyes').innerText = '1600';
+            document.getElementById('emails-ouverts').innerText = '1300';
+            document.getElementById('identifiants-captures').innerText = '350';
+        }, 5000); // Mise à jour toutes les 5 secondes
+    </script>
 </body>
 </html>
