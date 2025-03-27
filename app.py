@@ -62,7 +62,6 @@ def send_email(recipient_email, recipient_name, phishing_link):
         server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
         server.quit()
 
-        # Enregistrement de l'interaction "email envoyé" dans la base de données
         db.session.add(Interaction(email=recipient_email, event_type="email envoyé"))
         db.session.commit()
         print(f"? Email envoyé à {recipient_email}")
@@ -126,7 +125,6 @@ def stats_dashboard():
     if not session.get("logged_in"):
         return redirect("/login")
 
-    # Rafraîchissement des statistiques en temps réel
     total_sent = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="email envoyé").scalar()
     total_clicked = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="lien cliqué").scalar()
     total_submitted = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="formulaire soumis").scalar()
@@ -144,7 +142,7 @@ def stats_dashboard():
         plt.figure(figsize=(6,6))
         plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
         plt.title("Statistiques du test de phishing")
-        plt.savefig("static/stats.png")
+        plt.savefig("static/stats.png", bbox_inches="tight")  # Modifiée pour éviter les avertissements
         plt.close()
     except Exception as e:
         print(f"Erreur lors de la génération du graphique : {e}")
@@ -176,6 +174,11 @@ def download_pdf():
     
     pdf.output("report.pdf")
     return send_file("report.pdf", as_attachment=True)
+
+# Route pour rediriger vers le tableau de bord des statistiques (au cas où un utilisateur essaie d'accéder à /stats)
+@app.route("/stats")
+def stats():
+    return redirect("/stats_dashboard")
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
