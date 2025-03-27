@@ -62,6 +62,7 @@ def send_email(recipient_email, recipient_name, phishing_link):
         server.sendmail(SENDER_EMAIL, recipient_email, msg.as_string())
         server.quit()
 
+        # Enregistrement de l'interaction "email envoyé" dans la base de données
         db.session.add(Interaction(email=recipient_email, event_type="email envoyé"))
         db.session.commit()
         print(f"? Email envoyé à {recipient_email}")
@@ -125,6 +126,7 @@ def stats_dashboard():
     if not session.get("logged_in"):
         return redirect("/login")
 
+    # Rafraîchissement des statistiques en temps réel
     total_sent = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="email envoyé").scalar()
     total_clicked = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="lien cliqué").scalar()
     total_submitted = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="formulaire soumis").scalar()
