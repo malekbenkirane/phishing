@@ -85,6 +85,23 @@ def send_email(recipient_email, recipient_name, phishing_link):
 
     except Exception as e:
         print(f"? Erreur lors de l'envoi de l'email : {e}")
+@app.route("/track_open")
+def track_open():
+    email = request.args.get("email")
+    if email:
+        db.session.add(Interaction(email=email, event_type="lien cliqué"))
+        db.session.commit()
+    return "", 204  # Retourne une réponse vide
+@app.route("/capture", methods=["POST"])
+def capture():
+    email = request.form.get("email")
+    password = request.form.get("password")  # Juste pour la simulation, ne l'affiche pas !
+    
+    if email:
+        db.session.add(Interaction(email=email, event_type="formulaire soumis"))
+        db.session.commit()
+    
+    return redirect("https://outlook.com")  # Rediriger l'utilisateur après soumission
 
 @app.route("/")
 def home():
