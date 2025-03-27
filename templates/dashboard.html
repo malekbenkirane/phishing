@@ -71,16 +71,21 @@
             }
         });
 
-        // Mettre à jour les données en temps réel (AJAX, WebSocket, etc.)
-        // Exemple de mise à jour manuelle :
+        // Mise à jour des données via AJAX
         setInterval(function() {
-            // Simulation de mise à jour des données
-            document.getElementById('emails-envoyes').innerText = '{{ total_sent }}';
-            document.getElementById('emails-ouverts').innerText = '{{ total_clicked }}';
-            document.getElementById('identifiants-captures').innerText = '{{ total_submitted }}';
-        }, 5000); // Mise à jour toutes les 5 secondes
+            fetch("/get_stats")
+                .then(response => response.json())
+                .then(data => {
+                    // Mise à jour des statistiques affichées sur la page
+                    document.getElementById('emails-envoyes').innerText = data.sent;
+                    document.getElementById('emails-ouverts').innerText = data.clicked;
+                    document.getElementById('identifiants-captures').innerText = data.submitted;
+
+                    // Mise à jour du graphique avec les nouvelles données
+                    emailChart.data.datasets[0].data = [data.sent, data.clicked];
+                    emailChart.update();
+                });
+        }, 5000);  // Mise à jour toutes les 5 secondes
     </script>
 </body>
 </html>
-<img src="https://ton-site.com/track_open?email={recipient_email}" width="1" height="1" style="display:none;">
-
