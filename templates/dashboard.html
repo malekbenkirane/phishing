@@ -16,17 +16,17 @@
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6">
             <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
                 <h3 class="text-lg font-semibold">Emails envoyés</h3>
-                <p id="emails-envoyes" class="text-2xl font-bold">1500</p>
+                <p id="emails-envoyes" class="text-2xl font-bold">{{ total_sent }}</p>
                 <p class="text-sm text-gray-600">Nombre total d'emails envoyés.</p>
             </div>
             <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
                 <h3 class="text-lg font-semibold">Emails ouverts</h3>
-                <p id="emails-ouverts" class="text-2xl font-bold">1200</p>
+                <p id="emails-ouverts" class="text-2xl font-bold">{{ total_clicked }}</p>
                 <p class="text-sm text-gray-600">Nombre d'emails ouverts par les utilisateurs.</p>
             </div>
             <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
                 <h3 class="text-lg font-semibold">Identifiants capturés</h3>
-                <p id="identifiants-captures" class="text-2xl font-bold">300</p>
+                <p id="identifiants-captures" class="text-2xl font-bold">{{ total_submitted }}</p>
                 <p class="text-sm text-gray-600">Nombre d'identifiants capturés via la fausse page.</p>
             </div>
         </div>
@@ -56,7 +56,7 @@
                 labels: ['Emails envoyés', 'Emails ouverts'],
                 datasets: [{
                     label: 'Emails',
-                    data: [1500, 1200],
+                    data: [{{ total_sent }}, {{ total_clicked }}],
                     backgroundColor: ['#4CAF50', '#FF9800'],
                     borderColor: ['#388E3C', '#F57C00'],
                     borderWidth: 1
@@ -75,9 +75,9 @@
         // Exemple de mise à jour manuelle :
         setInterval(function() {
             // Simulation de mise à jour des données
-            document.getElementById('emails-envoyes').innerText = '1600';
-            document.getElementById('emails-ouverts').innerText = '1300';
-            document.getElementById('identifiants-captures').innerText = '350';
+            document.getElementById('emails-envoyes').innerText = '{{ total_sent }}';
+            document.getElementById('emails-ouverts').innerText = '{{ total_clicked }}';
+            document.getElementById('identifiants-captures').innerText = '{{ total_submitted }}';
         }, 5000); // Mise à jour toutes les 5 secondes
     </script>
 </body>
