@@ -69,9 +69,24 @@ def send_email(recipient_email, recipient_name, phishing_link):
     except Exception as e:
         print(f"? Erreur lors de l'envoi de l'email : {e}")
 
+# Page d'accueil
 @app.route("/")
 def home():
     return render_template("index.html")
+
+# Route pour la connexion admin
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session["logged_in"] = True
+            return redirect("/stats_dashboard")
+        else:
+            return "Accès refusé", 401
+    return render_template("login.html")
 
 # Route pour envoyer un email de phishing
 @app.route("/send_email", methods=["GET", "POST"])
@@ -104,10 +119,11 @@ def send_email_route():
 
     return render_template("send_email.html")
 
+# Route pour afficher le tableau de bord des statistiques
 @app.route("/stats_dashboard")
 def stats_dashboard():
     if not session.get("logged_in"):
-        return redirect("/stats")
+        return redirect("/login")
 
     total_sent = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="email envoyé").scalar()
     total_clicked = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="lien cliqué").scalar()
@@ -139,7 +155,7 @@ def stats_dashboard():
 @app.route("/download_pdf")
 def download_pdf():
     if not session.get("logged_in"):
-        return redirect("/stats")
+        return redirect("/login")
     
     pdf = FPDF()
     pdf.add_page()
