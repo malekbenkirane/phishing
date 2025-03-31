@@ -48,7 +48,7 @@
     </div>
 
     <script>
-        // Graphique des emails envoyés, liens cliqués et identifiants capturés
+        // Initialisation du graphique
         var ctx = document.getElementById('emailChart').getContext('2d');
         var emailChart = new Chart(ctx, {
             type: 'bar',
@@ -71,19 +71,26 @@
             }
         });
 
-        // Mise à jour des données via AJAX
+        // Mise à jour des données via AJAX toutes les 5 secondes
         setInterval(function() {
             fetch("/get_stats")
                 .then(response => response.json())
                 .then(data => {
-                    // Mise à jour des statistiques affichées sur la page
-                    document.getElementById('emails-envoyes').innerText = data.sent;
-                    document.getElementById('emails-ouverts').innerText = data.clicked;
-                    document.getElementById('identifiants-captures').innerText = data.submitted;
+                    if (data.sent !== undefined && data.clicked !== undefined && data.submitted !== undefined) {
+                        // Mise à jour des statistiques affichées sur la page
+                        document.getElementById('emails-envoyes').innerText = data.sent;
+                        document.getElementById('emails-ouverts').innerText = data.clicked;
+                        document.getElementById('identifiants-captures').innerText = data.submitted;
 
-                    // Mise à jour du graphique avec les nouvelles données
-                    emailChart.data.datasets[0].data = [data.sent, data.clicked, data.submitted];
-                    emailChart.update();
+                        // Mise à jour du graphique avec les nouvelles données
+                        emailChart.data.datasets[0].data = [data.sent, data.clicked, data.submitted];
+                        emailChart.update();
+                    } else {
+                        console.error("Erreur de données reçues : ", data);
+                    }
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la récupération des statistiques : ", error);
                 });
         }, 5000);  // Mise à jour toutes les 5 secondes
     </script>
