@@ -20,9 +20,9 @@
                 <p class="text-sm text-gray-600">Nombre total d'emails envoyés.</p>
             </div>
             <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
-                <h3 class="text-lg font-semibold">Emails ouverts</h3>
+                <h3 class="text-lg font-semibold">Liens cliqués</h3>
                 <p id="emails-ouverts" class="text-2xl font-bold">{{ total_clicked }}</p>
-                <p class="text-sm text-gray-600">Nombre d'emails ouverts par les utilisateurs.</p>
+                <p class="text-sm text-gray-600">Nombre de liens cliqués dans les emails.</p>
             </div>
             <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
                 <h3 class="text-lg font-semibold">Identifiants capturés</h3>
@@ -41,24 +41,24 @@
             <h2 class="text-xl font-semibold mb-4">Explications des Statistiques</h2>
             <ul class="list-disc pl-6">
                 <li><strong>Emails envoyés :</strong> Ce chiffre représente tous les emails envoyés dans le cadre du test.</li>
-                <li><strong>Emails ouverts :</strong> Cela indique combien de personnes ont ouvert l'email de phishing, ce qui est essentiel pour mesurer l'efficacité de la campagne.</li>
+                <li><strong>Liens cliqués :</strong> Cela indique combien de personnes ont cliqué sur les liens dans les emails de phishing.</li>
                 <li><strong>Identifiants capturés :</strong> Ce nombre montre combien d'utilisateurs ont entré leurs informations sur la fausse page de connexion.</li>
             </ul>
         </div>
     </div>
 
     <script>
-        // Graphique des emails envoyés vs ouverts
+        // Graphique des emails envoyés, liens cliqués et identifiants capturés
         var ctx = document.getElementById('emailChart').getContext('2d');
         var emailChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Emails envoyés', 'Emails ouverts'],
+                labels: ['Emails envoyés', 'Liens cliqués', 'Identifiants capturés'],
                 datasets: [{
-                    label: 'Emails',
-                    data: [{{ total_sent }}, {{ total_clicked }}],
-                    backgroundColor: ['#4CAF50', '#FF9800'],
-                    borderColor: ['#388E3C', '#F57C00'],
+                    label: 'Statistiques de phishing',
+                    data: [{{ total_sent }}, {{ total_clicked }}, {{ total_submitted }}],
+                    backgroundColor: ['#4CAF50', '#FF9800', '#F44336'],
+                    borderColor: ['#388E3C', '#F57C00', '#D32F2F'],
                     borderWidth: 1
                 }]
             },
@@ -82,7 +82,7 @@
                     document.getElementById('identifiants-captures').innerText = data.submitted;
 
                     // Mise à jour du graphique avec les nouvelles données
-                    emailChart.data.datasets[0].data = [data.sent, data.clicked];
+                    emailChart.data.datasets[0].data = [data.sent, data.clicked, data.submitted];
                     emailChart.update();
                 });
         }, 5000);  // Mise à jour toutes les 5 secondes
