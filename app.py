@@ -212,6 +212,10 @@ def stats_dashboard():
     total_clicked = 0 if total_clicked is None or total_clicked < 0 else int(total_clicked)
     total_submitted = 0 if total_submitted is None or total_submitted < 0 else int(total_submitted)
 
+    # Calcul des taux
+    click_rate = (total_clicked / total_sent * 100) if total_sent > 0 else 0
+    submit_rate = (total_submitted / total_sent * 100) if total_sent > 0 else 0
+
     # Liste des valeurs à afficher dans le graphique
     values = [total_sent, total_clicked, total_submitted]
 
@@ -240,7 +244,10 @@ def stats_dashboard():
                            total_sent=total_sent, 
                            total_clicked=total_clicked, 
                            total_submitted=total_submitted,
+                           click_rate=click_rate,  # Ajouter le taux de clics
+                           submit_rate=submit_rate,  # Ajouter le taux de soumission
                            explanation=explanation)
+
 
 # Route pour télécharger le rapport au format PDF
 @app.route("/download_pdf")
