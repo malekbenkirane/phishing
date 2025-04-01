@@ -224,15 +224,7 @@ def stats_dashboard():
 
     labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
     
-    # Générer les statistiques sous forme de graphique (par exemple, un graphique en camembert)
-    try:
-        plt.figure(figsize=(6,6))
-        plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
-        plt.title("Statistiques du test de phishing")
-        plt.savefig("static/stats.png")
-        plt.close()
-    except Exception as e:
-        print(f"Erreur lors de la génération du graphique : {e}")
+# Générer les statistiques sous forme de graphique (par exemple, un graphique en camembert)
 
     # Explication à afficher sur le tableau de bord
     explanation = "Les graphiques ci-dessus montrent les résultats du test de phishing réalisé. " \
