@@ -5,6 +5,8 @@ import smtplib
 from email.mime.text import MIMEText
 import matplotlib.pyplot as plt
 from fpdf import FPDF
+import urllib.parse
+
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
