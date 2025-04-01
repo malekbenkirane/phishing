@@ -263,59 +263,59 @@ def download_pdf():
     pdf.cell(200, 10, "Rapport de Test de Phishing - Régence", ln=True, align='C')
     pdf.ln(10)
     pdf.set_font("Arial", size=12)
-    
+
     total_sent = Interaction.query.filter_by(event_type="email envoyé").count()
     total_clicked = Interaction.query.filter_by(event_type="lien cliqué").count()
     total_submitted = Interaction.query.filter_by(event_type="formulaire soumis").count()
-    
-    # Générer un camembert
-labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
-values = [total_sent, total_clicked, total_submitted]
-colors = ["blue", "orange", "red"]
 
-plt.figure(figsize=(5, 5))
-plt.pie(values, labels=labels, autopct="%1.1f%%", colors=colors, startangle=140)
-plt.title("Statistiques du test de phishing")
-plt.savefig("static/stats_report.png")
-plt.close()
-    
     pdf.cell(200, 10, f"Emails envoyés : {total_sent}", ln=True)
     pdf.cell(200, 10, f"Liens cliqués : {total_clicked}", ln=True)
     pdf.cell(200, 10, f"Formulaires remplis : {total_submitted}", ln=True)
-    
     pdf.ln(10)
-# Ajouter du texte explicatif
-pdf.multi_cell(0, 10, "Ce rapport présente les résultats d'une campagne de test de phishing réalisée par Régence. "
-                       "L'objectif est d'identifier les vulnérabilités en matière de cybersécurité en analysant les "
-                       "réactions des utilisateurs face à des emails frauduleux.")
-pdf.ln(10)
 
-# Ajouter l'image du graphique au PDF
-pdf.image("static/stats_report.png", x=30, w=150)
-pdf.ln(10)
+    # Ajouter une explication
+    pdf.multi_cell(0, 10, "Ce rapport présente les résultats d'une campagne de test de phishing réalisée par Régence. "
+                           "L'objectif est d'identifier les vulnérabilités en matière de cybersécurité en analysant les "
+                           "réactions des utilisateurs face à des emails frauduleux.")
+    pdf.ln(10)
 
-# Ajouter les statistiques par utilisateur
-users_stats = db.session.query(
-    Interaction.email,
-    db.func.count(Interaction.id).label('actions_count'),
-    db.func.sum(db.case((Interaction.event_type == 'lien cliqué', 1), else_=0)).label('clicked_count'),
-    db.func.sum(db.case((Interaction.event_type == 'formulaire soumis', 1), else_=0)).label('submitted_count')
-).group_by(Interaction.email).all()
+    # Ajouter un graphique
+    labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
+    values = [total_sent, total_clicked, total_submitted]
+    colors = ["blue", "orange", "red"]
 
-pdf.set_font("Arial", "B", 12)
-pdf.cell(200, 10, "Détails des interactions par utilisateur", ln=True)
-pdf.set_font("Arial", size=10)
+    plt.figure(figsize=(5, 5))
+    plt.pie(values, labels=labels, autopct="%1.1f%%", colors=colors, startangle=140)
+    plt.title("Statistiques du test de phishing")
+    plt.savefig("static/stats_report.png")
+    plt.close()
 
-for user in users_stats:
-    email, actions_count, clicked_count, submitted_count = user
-    pdf.cell(200, 10, f"Utilisateur: {email} | Actions: {actions_count} | Clics: {clicked_count} | Soumissions: {submitted_count}", ln=True)
+    # Insérer l'image du graphique
+    pdf.image("static/stats_report.png", x=30, w=150)
+    pdf.ln(10)
 
-pdf.ln(10)
-pdf.multi_cell(0, 10, "Ces résultats permettent d'analyser le niveau de sensibilisation à la cybersécurité et d'adapter les mesures de protection.")
+    # Ajouter les statistiques par utilisateur
+    users_stats = db.session.query(
+        Interaction.email,
+        db.func.count(Interaction.id).label('actions_count'),
+        db.func.sum(db.case((Interaction.event_type == 'lien cliqué', 1), else_=0)).label('clicked_count'),
+        db.func.sum(db.case((Interaction.event_type == 'formulaire soumis', 1), else_=0)).label('submitted_count')
+    ).group_by(Interaction.email).all()
 
-# Générer et enregistrer le fichier PDF
-pdf.output("report.pdf")
-return send_file("report.pdf", as_attachment=True)
+    pdf.set_font("Arial", "B", 12)
+    pdf.cell(200, 10, "Détails des interactions par utilisateur", ln=True)
+    pdf.set_font("Arial", size=10)
+
+    for user in users_stats:
+        email, actions_count, clicked_count, submitted_count = user
+        pdf.cell(200, 10, f"Utilisateur: {email} | Actions: {actions_count} | Clics: {clicked_count} | Soumissions: {submitted_count}", ln=True)
+
+    pdf.ln(10)
+    pdf.multi_cell(0, 10, "Ces résultats permettent d'analyser le niveau de sensibilisation à la cybersécurité et d'adapter les mesures de protection.")
+
+    pdf.output("report.pdf")
+    return send_file("report.pdf", as_attachment=True)
+
 
 
 if __name__ == "__main__":
