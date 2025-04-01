@@ -257,7 +257,7 @@ def stats_dashboard():
 
 
 # Route pour télécharger le rapport au format PDF
- @app.route("/download_pdf")
+@app.route("/download_pdf")
 def download_pdf():
     if not session.get("logged_in"):
         return redirect("/stats")
@@ -278,11 +278,11 @@ def download_pdf():
     pdf.cell(200, 10, f"Formulaires remplis : {total_submitted}", ln=True)
     pdf.ln(10)
 
-    # Génération du fichier PDF
     file_path = os.path.join("static", "report.pdf")
     pdf.output(file_path)
-    
+
     return send_file(file_path, as_attachment=True)
+
 
 
 
