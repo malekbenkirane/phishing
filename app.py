@@ -1,13 +1,11 @@
-﻿from flask import Flask, render_template, request, redirect, session, send_file, jsonify
+﻿from flask import Flask, render_template, request, redirect, session, send_file
 from flask_sqlalchemy import SQLAlchemy
 import os
 import smtplib
 from email.mime.text import MIMEText
 import matplotlib.pyplot as plt
 from fpdf import FPDF
-import csv
-from werkzeug.utils import secure_filename
-import urllib.parse
+
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
@@ -42,8 +40,6 @@ SENDER_PASSWORD = "Saouda2025!!"
 def send_email(recipient_email, recipient_name):
     # Construire le lien de phishing avec le tracking du clic
     phishing_link = f"https://outlook-regence.onrender.com/track_open?email={urllib.parse.quote(recipient_email)}&next=https://outlook-regence.onrender.com/"
-
-
 
     email_content = f"""
     <html>
@@ -88,34 +84,50 @@ def send_email(recipient_email, recipient_name):
 
         db.session.add(Interaction(email=recipient_email, event_type="email envoyé"))
         db.session.commit()
-        print(f"? Email envoyé à {recipient_email}.")
+        print(f"? Email envoyé à {recipient_email}")
 
     except Exception as e:
         print(f"? Erreur lors de l'envoi de l'email : {e}")
-
+        
+        
 @app.route("/track_open")
 def track_open():
     email = request.args.get("email")
-    next_url = request.args.get("next", "https://outlook-regence.onrender.com/")  # Redirection par défaut
-    
     if email:
         db.session.add(Interaction(email=email, event_type="lien cliqué"))
         db.session.commit()
-    
-    return redirect(next_url)
-
-    
-    
+    return "", 204  # Retourne une réponse vide
 @app.route("/capture", methods=["POST"])
 def capture():
     email = request.form.get("email")
     password = request.form.get("password")  # Juste pour la simulation, ne l'affiche pas !
-
+    
     if email:
         db.session.add(Interaction(email=email, event_type="formulaire soumis"))
         db.session.commit()
-
+    
     return redirect("https://outlook.com")  # Rediriger l'utilisateur après soumission
+
+@app.route("/")
+def home():
+    return render_template("index.html")  # Page d'accueil
+
+# Route pour afficher le formulaire de login pour accéder à l'envoi d'email
+@app.route("/login", methods=["GET", "POST"])
+def login():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session["logged_in"] = True
+            return redirect("/send_email")  # Si l'utilisateur est authentifié, rediriger vers la page d'envoi d'email
+        return "Accès refusé", 401  # Si les identifiants sont incorrects
+    
+    return render_template("login.html")  # Page de connexion
+
+# Route pour envoyer un email de phishing
+import csv
+from werkzeug.utils import secure_filename
 
 @app.route("/send_email", methods=["GET", "POST"])
 def send_email_route():
@@ -138,7 +150,7 @@ def send_email_route():
                     next(reader)  # Ignorer l'entête du fichier CSV
 
                     # Envoi des emails de phishing à chaque destinataire
-                    phishing_link = "https://outlook-regence.onrender.com/track_open?email={recipient_email}"  # Lien de phishing
+                    phishing_link = "https://outlook-regence.onrender.com"  # Lien de phishing
                     for row in reader:
                         if len(row) >= 2:  # Vérifier qu'il y a au moins un email et un nom
                             recipient_email = row[0].strip()
@@ -161,6 +173,20 @@ def send_email_route():
         return "Erreur : Email ou Nom manquant.", 400
 
     return render_template("send_email.html")  # Page pour envoyer un email
+
+
+# Route pour afficher le formulaire de login pour accéder aux statistiques
+@app.route("/stats", methods=["GET", "POST"])
+def stats():
+    if request.method == "POST":
+        username = request.form.get("username")
+        password = request.form.get("password")
+        if username == ADMIN_USERNAME and password == ADMIN_PASSWORD:
+            session["logged_in"] = True
+            return redirect("/stats_dashboard")
+        return "Accès refusé", 401
+    
+    return render_template("login.html")  # Page de connexion admin
 
 # Route pour afficher le tableau de bord des statistiques
 @app.route("/stats_dashboard")
