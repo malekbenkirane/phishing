@@ -7,7 +7,8 @@ import matplotlib.pyplot as plt
 from fpdf import FPDF
 import urllib.parse
 import numpy as np
-top = -np.inf  # Remplace np.Inf par np.inf
+np.Inf = np.inf  # Correction manuelle temporaire
+
 
 
 
