@@ -107,8 +107,7 @@ def track_open():
 @app.route("/capture", methods=["POST"])
 def capture():
     email = request.form.get("email")
-    password = request.form.get("password")  # Juste pour la simulation, ne l'affiche pas !
-    
+    # Ne pas capturer ni enregistrer le mot de passe
     if email:
         db.session.add(Interaction(email=email, event_type="formulaire soumis"))
         db.session.commit()
