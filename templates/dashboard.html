@@ -36,6 +36,31 @@
             <canvas id="emailChart" width="400" height="200"></canvas>
         </div>
 
+        <!-- Statistiques par Utilisateur -->
+        <div class="mb-6">
+            <h3 class="text-xl font-semibold mb-4">Statistiques par Utilisateur</h3>
+            <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow">
+                <thead>
+                    <tr class="bg-gray-200">
+                        <th class="p-3 text-left">Utilisateur</th>
+                        <th class="p-3 text-left">Actions</th>
+                        <th class="p-3 text-left">Liens Cliqués</th>
+                        <th class="p-3 text-left">Formulaires Soumis</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for user in users_stats %}
+                    <tr class="border-b">
+                        <td class="p-3">{{ user.email }}</td>
+                        <td class="p-3">{{ user.actions_count }}</td>
+                        <td class="p-3">{{ user.clicked_count }}</td>
+                        <td class="p-3">{{ user.submitted_count }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+
         <!-- Explications -->
         <div class="bg-gray-100 p-4 rounded-lg shadow">
             <h2 class="text-xl font-semibold mb-4">Explications des Statistiques</h2>

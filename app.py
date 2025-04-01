@@ -202,7 +202,7 @@ def stats_dashboard():
     if not session.get("logged_in"):
         return redirect("/stats")
     
-    # Calcul des statistiques sans vérifier NaN, car SQLAlchemy retourne des entiers
+    # Calcul des statistiques globales
     total_sent = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="email envoyé").scalar()
     total_clicked = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="lien cliqué").scalar()
     total_submitted = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="formulaire soumis").scalar()
@@ -230,17 +230,26 @@ def stats_dashboard():
     except Exception as e:
         print(f"Erreur lors de la génération du graphique : {e}")
 
+    # Récupérer les statistiques par utilisateur
+    users_stats = db.session.query(Interaction.email, 
+                                   db.func.count(Interaction.id).label('actions_count'),
+                                   db.func.sum(db.case((Interaction.event_type == 'lien cliqué', 1), else_=0)).label('clicked_count'),
+                                   db.func.sum(db.case((Interaction.event_type == 'formulaire soumis', 1), else_=0)).label('submitted_count')
+                                  ).group_by(Interaction.email).all()
+
     # Explication à afficher sur le tableau de bord
     explanation = "Les graphiques ci-dessus montrent les résultats du test de phishing réalisé. " \
                   "Les emails envoyés sont suivis des liens cliqués et des formulaires soumis. " \
                   "Utilisez ces données pour évaluer les vulnérabilités."
 
-    # Afficher le tableau de bord avec les valeurs calculées
+    # Afficher le tableau de bord avec les valeurs calculées et les statistiques par utilisateur
     return render_template("dashboard.html", 
                            total_sent=total_sent, 
                            total_clicked=total_clicked, 
                            total_submitted=total_submitted,
+                           users_stats=users_stats,
                            explanation=explanation)
+
 
 # Route pour télécharger le rapport au format PDF
 @app.route("/download_pdf")
