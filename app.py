@@ -263,81 +263,82 @@ def download_pdf():
         return redirect("/stats")
     
     # Initialisation du PDF
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", "B", 16)
-    pdf.cell(200, 10, "Rapport de Test de Phishing - Régence", ln=True, align='C')
+pdf = FPDF()
+pdf.add_page()
+pdf.set_font("Arial", "B", 16)
+pdf.cell(200, 10, "Rapport de Test de Phishing - Régence", ln=True, align='C')
+pdf.ln(10)
+
+# Statistiques globales
+total_sent = Interaction.query.filter_by(event_type="email envoyé").count()
+total_clicked = Interaction.query.filter_by(event_type="lien cliqué").count()
+total_submitted = Interaction.query.filter_by(event_type="formulaire soumis").count()
+
+# Ajouter les statistiques dans le rapport
+pdf.set_font("Arial", size=12)
+pdf.cell(200, 10, f"Emails envoyés : {total_sent}", ln=True)
+pdf.cell(200, 10, f"Liens cliqués : {total_clicked}", ln=True)
+pdf.cell(200, 10, f"Formulaires remplis : {total_submitted}", ln=True)
+pdf.ln(10)
+
+# Statistiques avancées
+# Exemple : Nombre total de connexions, Taux de réussite des connexions
+total_connections = total_sent  # Le nombre d'emails envoyés peut être considéré comme le nombre de connexions
+success_rate = (total_clicked / total_connections) * 100 if total_connections > 0 else 0
+avg_session_duration = np.random.uniform(5, 30)  # Valeur aléatoire pour la durée moyenne des sessions
+avg_actions_per_session = np.random.uniform(1, 5)  # Actions par session, valeur aléatoire
+error_rate = np.random.uniform(0, 1) * 100  # Taux d'erreur des actions
+avg_response_time = np.random.uniform(0.5, 2)  # Temps moyen de réponse du serveur (en secondes)
+active_users = np.random.randint(1, 100)  # Nombre d'utilisateurs actifs
+conversion_rate = (total_submitted / total_clicked) * 100 if total_clicked > 0 else 0
+avg_time_spent = np.random.uniform(10, 60)  # Temps moyen passé sur la plateforme (en minutes)
+
+# Ajouter ces statistiques dans le rapport
+pdf.multi_cell(0, 10, f"Nombre total de connexions : {total_connections}")
+pdf.multi_cell(0, 10, f"Taux de réussite des connexions : {success_rate:.2f}%")
+pdf.multi_cell(0, 10, f"Durée moyenne des sessions : {avg_session_duration:.2f} minutes")
+pdf.multi_cell(0, 10, f"Nombre moyen d'actions par session : {avg_actions_per_session:.2f}")
+pdf.multi_cell(0, 10, f"Taux d’erreur des actions : {error_rate:.2f}%")
+pdf.multi_cell(0, 10, f"Temps moyen de réponse du serveur : {avg_response_time:.2f} secondes")
+pdf.multi_cell(0, 10, f"Nombre d’utilisateurs actifs : {active_users}")
+pdf.multi_cell(0, 10, f"Taux de conversion des actions : {conversion_rate:.2f}%")
+pdf.multi_cell(0, 10, f"Temps moyen passé sur la plateforme : {avg_time_spent:.2f} minutes")
+pdf.ln(10)
+
+# Ajouter une section de recommandations
+pdf.set_font("Arial", "B", 12)
+pdf.cell(200, 10, "Recommandations", ln=True)
+pdf.set_font("Arial", size=10)
+pdf.multi_cell(0, 10, "1. Renforcer les mesures de sécurité pour limiter les clics sur les liens de phishing.")
+pdf.multi_cell(0, 10, "2. Améliorer la sensibilisation des utilisateurs pour réduire les actions malveillantes.")
+pdf.multi_cell(0, 10, "3. Optimiser les performances du serveur pour diminuer le temps de réponse.")
+pdf.multi_cell(0, 10, "4. Suivre de près les utilisateurs les plus actifs et mettre en place des vérifications de sécurité.")
+pdf.multi_cell(0, 10, "5. Implémenter un système de formation continue pour réduire les taux d'erreur.")
+
+pdf.ln(10)
+
+# Ajouter un graphique pour rendre le rapport plus visuel
+labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
+values = [total_sent, total_clicked, total_submitted]
+colors = ["blue", "orange", "red"]
+
+try:
+    plt.figure(figsize=(5, 5))
+    plt.pie(values, labels=labels, autopct="%1.1f%%", colors=colors, startangle=140)
+    plt.title("Statistiques du test de phishing")
+    plt.savefig("static/stats_report.png")
+    plt.close()
+
+    # Insérer l'image du graphique
+    pdf.image("static/stats_report.png", x=30, w=150)
     pdf.ln(10)
-    
-    # Statistiques globales
-    total_sent = Interaction.query.filter_by(event_type="email envoyé").count()
-    total_clicked = Interaction.query.filter_by(event_type="lien cliqué").count()
-    total_submitted = Interaction.query.filter_by(event_type="formulaire soumis").count()
+except Exception as e:
+    print(f"Erreur lors de la génération du graphique : {e}")
 
-    # Ajouter les statistiques dans le rapport
-    pdf.set_font("Arial", size=12)
-    pdf.cell(200, 10, f"Emails envoyés : {total_sent}", ln=True)
-    pdf.cell(200, 10, f"Liens cliqués : {total_clicked}", ln=True)
-    pdf.cell(200, 10, f"Formulaires remplis : {total_submitted}", ln=True)
-    pdf.ln(10)
+# Générer le fichier PDF
+pdf.output("report.pdf")
+return send_file("report.pdf", as_attachment=True)
 
-    # Statistiques avancées
-    # Exemple : Nombre total de connexions, Taux de réussite des connexions
-    total_connections = total_sent  # Le nombre d'emails envoyés peut être considéré comme le nombre de connexions
-    success_rate = (total_clicked / total_connections) * 100 if total_connections > 0 else 0
-    avg_session_duration = np.random.uniform(5, 30)  # Valeur aléatoire pour la durée moyenne des sessions
-    avg_actions_per_session = np.random.uniform(1, 5)  # Actions par session, valeur aléatoire
-    error_rate = np.random.uniform(0, 1) * 100  # Taux d'erreur des actions
-    avg_response_time = np.random.uniform(0.5, 2)  # Temps moyen de réponse du serveur (en secondes)
-    active_users = np.random.randint(1, 100)  # Nombre d'utilisateurs actifs
-    conversion_rate = (total_submitted / total_clicked) * 100 if total_clicked > 0 else 0
-    avg_time_spent = np.random.uniform(10, 60)  # Temps moyen passé sur la plateforme (en minutes)
-    
-    # Ajouter ces statistiques dans le rapport
-    pdf.multi_cell(0, 10, f"Nombre total de connexions : {total_connections}")
-    pdf.multi_cell(0, 10, f"Taux de réussite des connexions : {success_rate:.2f}%")
-    pdf.multi_cell(0, 10, f"Durée moyenne des sessions : {avg_session_duration:.2f} minutes")
-    pdf.multi_cell(0, 10, f"Nombre moyen d'actions par session : {avg_actions_per_session:.2f}")
-    pdf.multi_cell(0, 10, f"Taux d’erreur des actions : {error_rate:.2f}%")
-    pdf.multi_cell(0, 10, f"Temps moyen de réponse du serveur : {avg_response_time:.2f} secondes")
-    pdf.multi_cell(0, 10, f"Nombre d’utilisateurs actifs : {active_users}")
-    pdf.multi_cell(0, 10, f"Taux de conversion des actions : {conversion_rate:.2f}%")
-    pdf.multi_cell(0, 10, f"Temps moyen passé sur la plateforme : {avg_time_spent:.2f} minutes")
-    pdf.ln(10)
-
-    # Ajouter une section de recommandations
-    pdf.set_font("Arial", "B", 12)
-    pdf.cell(200, 10, "Recommandations", ln=True)
-    pdf.set_font("Arial", size=10)
-    pdf.multi_cell(0, 10, "1. Renforcer les mesures de sécurité pour limiter les clics sur les liens de phishing.")
-    pdf.multi_cell(0, 10, "2. Améliorer la sensibilisation des utilisateurs pour réduire les actions malveillantes.")
-    pdf.multi_cell(0, 10, "3. Optimiser les performances du serveur pour diminuer le temps de réponse.")
-    pdf.multi_cell(0, 10, "4. Suivre de près les utilisateurs les plus actifs et mettre en place des vérifications de sécurité.")
-    pdf.multi_cell(0, 10, "5. Implémenter un système de formation continue pour réduire les taux d'erreur.")
-
-    pdf.ln(10)
-    
-    # Ajouter un graphique pour rendre le rapport plus visuel
-    labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
-    values = [total_sent, total_clicked, total_submitted]
-    colors = ["blue", "orange", "red"]
-
-    try:
-        plt.figure(figsize=(5, 5))
-        plt.pie(values, labels=labels, autopct="%1.1f%%", colors=colors, startangle=140)
-        plt.title("Statistiques du test de phishing")
-        plt.savefig("static/stats_report.png")
-        plt.close()
-
-        # Insérer l'image du graphique
-        pdf.image("static/stats_report.png", x=30, w=150)
-        pdf.ln(10)
-    except Exception as e:
-        print(f"Erreur lors de la génération du graphique : {e}")
-
-    # Générer le fichier PDF
-    pdf.output("report.pdf")
-    return send_file("report.pdf", as_attachment=True)
     
 def clean_text(text):
     return text.replace('’', "'").replace('“', '"').replace('”', '"')
@@ -345,8 +346,6 @@ def clean_text(text):
 # Utiliser clean_text pour nettoyer les données avant de les ajouter au PDF
 text = clean_text("Ce texte peut contenir des caractères spéciaux comme l’apostrophe typographique.")
 pdf.multi_cell(0, 10, text)
-
-
 
 
 
