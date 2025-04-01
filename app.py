@@ -6,6 +6,9 @@ from email.mime.text import MIMEText
 import matplotlib.pyplot as plt
 from fpdf import FPDF
 import urllib.parse
+import numpy as np
+top = -np.inf  # Remplace np.Inf par np.inf
+
 
 
 app = Flask(__name__)
