@@ -257,7 +257,7 @@ def stats_dashboard():
 
 
 # Route pour télécharger le rapport au format PDF
-@app.route("/download_pdf")
+ @app.route("/download_pdf")
 def download_pdf():
     if not session.get("logged_in"):
         return redirect("/stats")
@@ -283,11 +283,14 @@ def download_pdf():
 
     # Ajouter d'autres statistiques ici...
 
-    # Générer le fichier PDF
-    pdf.output("report.pdf")
+    # Définir un chemin pour le fichier PDF généré dans le répertoire 'static'
+    file_path = os.path.join('static', 'report.pdf')
+    pdf.output(file_path)
     
     # Retourner le fichier PDF à l'utilisateur
-    return send_file("report.pdf", as_attachment=True)
+    return send_file(file_path, as_attachment=True)
+
+
 
 
 # Statistiques avancées
