@@ -261,34 +261,29 @@ def stats_dashboard():
 def download_pdf():
     if not session.get("logged_in"):
         return redirect("/stats")
-    
-    # Initialisation du PDF
+
     pdf = FPDF()
     pdf.add_page()
     pdf.set_font("Arial", "B", 16)
     pdf.cell(200, 10, "Rapport de Test de Phishing - Régence", ln=True, align='C')
     pdf.ln(10)
-    
-    # Statistiques globales
-    total_sent = Interaction.query.filter_by(event_type="email envoyé").count()
-    total_clicked = Interaction.query.filter_by(event_type="lien cliqué").count()
-    total_submitted = Interaction.query.filter_by(event_type="formulaire soumis").count()
 
-    # Ajouter les statistiques dans le rapport
+    total_sent = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="email envoyé").scalar()
+    total_clicked = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="lien cliqué").scalar()
+    total_submitted = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="formulaire soumis").scalar()
+
     pdf.set_font("Arial", size=12)
     pdf.cell(200, 10, f"Emails envoyés : {total_sent}", ln=True)
     pdf.cell(200, 10, f"Liens cliqués : {total_clicked}", ln=True)
     pdf.cell(200, 10, f"Formulaires remplis : {total_submitted}", ln=True)
     pdf.ln(10)
 
-    # Ajouter d'autres statistiques ici...
-
-    # Définir un chemin pour le fichier PDF généré dans le répertoire 'static'
-    file_path = os.path.join('static', 'report.pdf')
+    # Génération du fichier PDF
+    file_path = os.path.join("static", "report.pdf")
     pdf.output(file_path)
     
-    # Retourner le fichier PDF à l'utilisateur
     return send_file(file_path, as_attachment=True)
+
 
 
 
