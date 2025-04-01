@@ -283,11 +283,6 @@ def download_pdf():
 
     return send_file(file_path, as_attachment=True)
 
-
-
-
-
-
 # Statistiques avancées
 # Exemple : Nombre total de connexions, Taux de réussite des connexions
 total_connections = total_sent  # Le nombre d'emails envoyés peut être considéré comme le nombre de connexions
