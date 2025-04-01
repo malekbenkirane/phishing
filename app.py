@@ -339,12 +339,13 @@ def download_pdf():
     pdf.output("report.pdf")
     return send_file("report.pdf", as_attachment=True)
     
-  def clean_text(text):
+ def clean_text(text):
     return text.replace('’', "'").replace('“', '"').replace('”', '"')
 
 # Utiliser clean_text pour nettoyer les données avant de les ajouter au PDF
 text = clean_text("Ce texte peut contenir des caractères spéciaux comme l’apostrophe typographique.")
 pdf.multi_cell(0, 10, text)
+
 
 
 
