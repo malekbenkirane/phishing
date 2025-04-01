@@ -284,6 +284,7 @@ plt.close()
     pdf.cell(200, 10, f"Formulaires remplis : {total_submitted}", ln=True)
     
     pdf.ln(10)
+# Ajouter du texte explicatif
 pdf.multi_cell(0, 10, "Ce rapport présente les résultats d'une campagne de test de phishing réalisée par Régence. "
                        "L'objectif est d'identifier les vulnérabilités en matière de cybersécurité en analysant les "
                        "réactions des utilisateurs face à des emails frauduleux.")
@@ -312,9 +313,10 @@ for user in users_stats:
 pdf.ln(10)
 pdf.multi_cell(0, 10, "Ces résultats permettent d'analyser le niveau de sensibilisation à la cybersécurité et d'adapter les mesures de protection.")
 
-    
-    pdf.output("report.pdf")
-    return send_file("report.pdf", as_attachment=True)
+# Générer et enregistrer le fichier PDF
+pdf.output("report.pdf")
+return send_file("report.pdf", as_attachment=True)
+
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
