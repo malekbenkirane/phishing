@@ -99,6 +99,7 @@ def track_open():
     next_url = request.args.get("next", "https://outlook.com")  # URL de redirection par défaut
 
     if email:
+        # Enregistrez l'événement "lien cliqué" et associez-le à l'utilisateur
         db.session.add(Interaction(email=email, event_type="lien cliqué"))
         db.session.commit()
     
@@ -218,45 +219,88 @@ def stats_dashboard():
     if not session.get("logged_in"):
         return redirect("/stats")
     
-    # Calcul des statistiques sans vérifier NaN, car SQLAlchemy retourne des entiers
-    total_sent = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="email envoyé").scalar()
-    total_clicked = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="lien cliqué").scalar()
-    total_submitted = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="formulaire soumis").scalar()
+    # Exemple de récupération des statistiques globales
+    total_sent = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="email envoyé").scalar() or 0
+    total_clicked = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="lien cliqué").scalar() or 0
+    total_submitted = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="formulaire soumis").scalar() or 0
+
+    # Récupérer les statistiques par utilisateur
+    users_stats = db.session.query(
+    Interaction.email,
+    db.func.count(Interaction.id).label('actions_count'),
+    db.func.sum(
+        db.case((Interaction.event_type == "lien cliqué", 1), else_=0)
+    ).label('clicked_count'),
+    db.func.sum(
+        db.case((Interaction.event_type == "formulaire soumis", 1), else_=0)
+    ).label('submitted_count')
+).group_by(Interaction.email).all()
+
+
+    # Passer les données au template
+    return render_template("stats_dashboard.html", 
+                           total_sent=total_sent, 
+                           total_clicked=total_clicked, 
+                           total_submitted=total_submitted, 
+                           users_stats=users_stats)
+
+                           
+@app.route("/user_stats/<user_email>")
+def user_stats(user_email):
+    if not session.get("logged_in"):
+        return redirect("/stats")
+
+    # Récupérer les statistiques pour l'email spécifique
+    total_sent = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(email=user_email, event_type="email envoyé").scalar()
+    total_clicked = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(email=user_email, event_type="lien cliqué").scalar()
+    total_submitted = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(email=user_email, event_type="formulaire soumis").scalar()
 
     # Gestion des valeurs non valides ou nulles
-    total_sent = 0 if total_sent is None or total_sent < 0 else int(total_sent)
-    total_clicked = 0 if total_clicked is None or total_clicked < 0 else int(total_clicked)
-    total_submitted = 0 if total_submitted is None or total_submitted < 0 else int(total_submitted)
+    total_sent = max(0, total_sent or 0)
+    total_clicked = max(0, total_clicked or 0)
+    total_submitted = max(0, total_submitted or 0)
 
     # Liste des valeurs à afficher dans le graphique
     values = [total_sent, total_clicked, total_submitted]
-
-    # Vérification que toutes les valeurs sont des entiers non négatifs
-    values = [max(0, value) for value in values]
-
     labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
-    
+
     # Générer les statistiques sous forme de graphique (par exemple, un graphique en camembert)
     try:
-        plt.figure(figsize=(6,6))
+        plt.figure(figsize=(6, 6))
         plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
-        plt.title("Statistiques du test de phishing")
-        plt.savefig("static/stats.png")
+        plt.title(f"Statistiques de l'utilisateur : {user_email}")
+        plt.savefig(f"static/stats_{user_email}.png")
         plt.close()
     except Exception as e:
         print(f"Erreur lors de la génération du graphique : {e}")
 
     # Explication à afficher sur le tableau de bord
-    explanation = "Les graphiques ci-dessus montrent les résultats du test de phishing réalisé. " \
-                  "Les emails envoyés sont suivis des liens cliqués et des formulaires soumis. " \
-                  "Utilisez ces données pour évaluer les vulnérabilités."
+    explanation = f"Les graphiques ci-dessus montrent les résultats du test de phishing pour l'utilisateur : {user_email}. " \
+                  "Les emails envoyés sont suivis des liens cliqués et des formulaires soumis."
 
-    # Afficher le tableau de bord avec les valeurs calculées
-    return render_template("dashboard.html", 
+    return render_template("user_dashboard.html", 
+                           user_email=user_email, 
                            total_sent=total_sent, 
                            total_clicked=total_clicked, 
                            total_submitted=total_submitted,
                            explanation=explanation)
+                           
+@app.route("/get_stats")
+def get_stats():
+    if not session.get("logged_in"):
+        return redirect("/stats")
+    
+    # Récupérer les statistiques actuelles
+    total_sent = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="email envoyé").scalar() or 0
+    total_clicked = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="lien cliqué").scalar() or 0
+    total_submitted = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="formulaire soumis").scalar() or 0
+
+    return jsonify({
+        "sent": total_sent,
+        "clicked": total_clicked,
+        "submitted": total_submitted
+    })
+
 
 # Route pour télécharger le rapport au format PDF
 @app.route("/download_pdf")
