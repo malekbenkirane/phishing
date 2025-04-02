@@ -280,6 +280,21 @@ def user_stats(user_email):
                            total_submitted=total_submitted,
                            explanation=explanation)
                            
+@app.route("/get_stats")
+def get_stats():
+    if not session.get("logged_in"):
+        return redirect("/stats")
+    
+    # Récupérer les statistiques actuelles
+    total_sent = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="email envoyé").scalar() or 0
+    total_clicked = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="lien cliqué").scalar() or 0
+    total_submitted = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="formulaire soumis").scalar() or 0
+
+    return jsonify({
+        "sent": total_sent,
+        "clicked": total_clicked,
+        "submitted": total_submitted
+    })
 
 
 # Route pour télécharger le rapport au format PDF
