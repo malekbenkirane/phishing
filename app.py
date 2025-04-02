@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 import matplotlib.pyplot as plt
 from fpdf import FPDF
 import urllib.parse
-from sqlalchemy import case
+
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -27,22 +27,6 @@ class Interaction(db.Model):
 # Création des tables
 with app.app_context():
     db.create_all()
-    
-@app.route("/reset_stats", methods=["POST"])
-def reset_stats():
-    if not session.get("logged_in"):
-        return redirect("/stats")
-
-    try:
-        # Supprimer toutes les interactions enregistrées dans la base de données
-        db.session.query(Interaction).delete()
-        db.session.commit()
-        print("Les statistiques ont été réinitialisées.")
-    except Exception as e:
-        print(f"Erreur lors de la réinitialisation : {e}")
-        db.session.rollback()
-
-    return redirect("/stats_dashboard")    
 
 # Identifiants admin
 ADMIN_USERNAME = "Reg"
@@ -212,11 +196,12 @@ def stats():
     
     return render_template("login.html")  # Page de connexion admin
 
+# Route pour afficher le tableau de bord des statistiques
 @app.route("/stats_dashboard")
 def stats_dashboard():
     if not session.get("logged_in"):
         return redirect("/stats")
-
+    
     # Calcul des statistiques globales
     total_sent = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="email envoyé").scalar()
     total_clicked = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="lien cliqué").scalar()
@@ -227,55 +212,43 @@ def stats_dashboard():
     total_clicked = 0 if total_clicked is None or total_clicked < 0 else int(total_clicked)
     total_submitted = 0 if total_submitted is None or total_submitted < 0 else int(total_submitted)
 
-    # Statistiques par utilisateur
-    user_stats = db.session.query(
-        Interaction.email,
-        db.func.count(Interaction.id).label("action_count"),
-        db.func.sum(
-            db.case(
-                (Interaction.event_type == "email envoyé", 1),
-                else_=0
-            )
-        ).label("emails_sent"),
-        db.func.sum(
-            db.case(
-                (Interaction.event_type == "lien cliqué", 1),
-                else_=0
-            )
-        ).label("links_clicked"),
-        db.func.sum(
-            db.case(
-                (Interaction.event_type == "formulaire soumis", 1),
-                else_=0
-            )
-        ).label("forms_submitted")
-    ).group_by(Interaction.email).all()
+    # Liste des valeurs à afficher dans le graphique
+    values = [total_sent, total_clicked, total_submitted]
+
+    # Vérification que toutes les valeurs sont des entiers non négatifs
+    values = [max(0, value) for value in values]
+
+    labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
+    
+    # Générer les statistiques sous forme de graphique (par exemple, un graphique en camembert)
+    try:
+        plt.figure(figsize=(6,6))
+        plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
+        plt.title("Statistiques du test de phishing")
+        plt.savefig("static/stats.png")
+        plt.close()
+    except Exception as e:
+        print(f"Erreur lors de la génération du graphique : {e}")
+
+    # Récupérer les statistiques par utilisateur
+    users_stats = db.session.query(Interaction.email, 
+                                   db.func.count(Interaction.id).label('actions_count'),
+                                   db.func.sum(db.case((Interaction.event_type == 'lien cliqué', 1), else_=0)).label('clicked_count'),
+                                   db.func.sum(db.case((Interaction.event_type == 'formulaire soumis', 1), else_=0)).label('submitted_count')
+                                  ).group_by(Interaction.email).all()
 
     # Explication à afficher sur le tableau de bord
     explanation = "Les graphiques ci-dessus montrent les résultats du test de phishing réalisé. " \
                   "Les emails envoyés sont suivis des liens cliqués et des formulaires soumis. " \
                   "Utilisez ces données pour évaluer les vulnérabilités."
 
-    # Générer les statistiques sous forme de graphique (par exemple, un graphique en camembert)
-    try:
-        values = [total_sent, total_clicked, total_submitted]
-        labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
-        plt.figure(figsize=(6, 6))
-        plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
-        plt.title("Statistiques du test de phishing")
-        plt.savefig("static/stats.png", bbox_inches="tight")
-        plt.close()
-    except Exception as e:
-        print(f"Erreur lors de la génération du graphique : {e}")
-
-    # Afficher le tableau de bord avec les valeurs calculées
+    # Afficher le tableau de bord avec les valeurs calculées et les statistiques par utilisateur
     return render_template("dashboard.html", 
                            total_sent=total_sent, 
                            total_clicked=total_clicked, 
                            total_submitted=total_submitted,
-                           explanation=explanation,
-                           user_stats=user_stats)  # Passer les statistiques par utilisateur à la vue
-
+                           users_stats=users_stats,
+                           explanation=explanation)
 
 
 # Route pour télécharger le rapport au format PDF
