@@ -231,12 +231,30 @@ def stats_dashboard():
     from sqlalchemy import case
 
 # Statistiques par utilisateur
+from sqlalchemy import case
+
+# Statistiques par utilisateur
 user_stats = db.session.query(
     Interaction.email,
     db.func.count(Interaction.id).label("action_count"),
-    db.func.sum(db.case((Interaction.event_type == "email envoyé", 1), else_=0)).label("emails_sent"),
-    db.func.sum(db.case((Interaction.event_type == "lien cliqué", 1), else_=0)).label("links_clicked"),
-    db.func.sum(db.case((Interaction.event_type == "formulaire soumis", 1), else_=0)).label("forms_submitted")
+    db.func.sum(
+        db.case(
+            (Interaction.event_type == "email envoyé", 1),  # Condition et valeur
+            else_=0  # Valeur par défaut si la condition n'est pas remplie
+        )
+    ).label("emails_sent"),
+    db.func.sum(
+        db.case(
+            (Interaction.event_type == "lien cliqué", 1),  # Condition et valeur
+            else_=0  # Valeur par défaut
+        )
+    ).label("links_clicked"),
+    db.func.sum(
+        db.case(
+            (Interaction.event_type == "formulaire soumis", 1),  # Condition et valeur
+            else_=0  # Valeur par défaut
+        )
+    ).label("forms_submitted")
 ).group_by(Interaction.email).all()
 
 
