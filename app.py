@@ -232,10 +232,11 @@ def stats_dashboard():
 
     # Récupérer les statistiques par utilisateur
     users_stats = db.session.query(Interaction.email, 
-                                   db.func.count(Interaction.id).label('actions_count'),
-                                   db.func.sum(db.case((Interaction.event_type == 'lien cliqué', 1), else_=0)).label('clicked_count'),
-                                   db.func.sum(db.case((Interaction.event_type == 'formulaire soumis', 1), else_=0)).label('submitted_count')
-                                  ).group_by(Interaction.email).all()
+                               db.func.count(Interaction.id).label('actions_count'),
+                               db.func.sum(db.case((Interaction.event_type == 'lien cliqué', 1), else_=0)).label('clicked_count'),
+                               db.func.sum(db.case((Interaction.event_type == 'formulaire soumis', 1), else_=0)).label('submitted_count')
+                              ).group_by(Interaction.email).all()
+
 
     # Explication à afficher sur le tableau de bord
     explanation = "Les graphiques ci-dessus montrent les résultats du test de phishing réalisé. " \
