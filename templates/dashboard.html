@@ -10,12 +10,14 @@
 <body class="bg-gray-100 text-gray-900">
 
     <div class="container mx-auto my-8 p-4 bg-white shadow-lg rounded-lg">
+
         <h1 class="text-3xl font-semibold text-center mb-6">Tableau de Bord - Phishing</h1>
 		
 		<button id="reset-stats" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg shadow">
     Réinitialiser les statistiques
 </button>
 
+        <h1 class="text-3xl font-semibold text-center mb-6">Rapport de Test de Phishing Regence</h1>
         
         <!-- Statistiques Générales -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6">
@@ -40,6 +42,12 @@
         <div class="mb-8">
             <canvas id="emailChart" width="400" height="200"></canvas>
         </div>
+        
+        <form action="/reset_stats" method="post" style="margin-top: 20px;">
+            <button type="submit" style="background-color: red; color: white; padding: 10px 15px; border: none; cursor: pointer;">
+                Réinitialiser les statistiques
+            </button>
+        </form>
 
         <!-- Statistiques par Utilisateur -->
         <div class="mb-6">
@@ -73,6 +81,25 @@
                 <li><strong>Emails envoyés :</strong> Ce chiffre représente tous les emails envoyés dans le cadre du test.</li>
                 <li><strong>Liens cliqués :</strong> Cela indique combien de personnes ont cliqué sur les liens dans les emails de phishing.</li>
                 <li><strong>Identifiants capturés :</strong> Ce nombre montre combien d'utilisateurs ont entré leurs informations sur la fausse page de connexion.</li>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {% for user in users_stats %}
+                <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold">{{ user.email }}</h3>
+                    <p class="text-sm text-gray-600">Emails envoyés : <span class="text-2xl font-bold">{{ user.actions_count }}</span></p>
+                    <p class="text-sm text-gray-600">Liens cliqués : <span class="text-2xl font-bold">{{ user.clicked_count }}</span></p>
+                    <p class="text-sm text-gray-600">Identifiants capturés : <span class="text-2xl font-bold">{{ user.submitted_count }}</span></p>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- Explications et recommandations -->
+        <div class="bg-gray-100 p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Explications des Statistiques</h2>
+            <ul class="list-disc pl-6">
+                <li><strong>Emails envoyés :</strong> Nombre total d'emails envoyés.</li>
+                <li><strong>Liens cliqués :</strong> Nombre d'emails dont le lien a été cliqué.</li>
+                <li><strong>Identifiants capturés :</strong> Nombre d'identifiants soumis via le faux site.</li>
             </ul>
         </div>
     </div>
@@ -125,6 +152,7 @@
                 }
             }
         });
+
 
         // Mise à jour des données via AJAX toutes les 5 secondes
         setInterval(function() {

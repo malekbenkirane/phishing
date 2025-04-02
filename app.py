@@ -103,6 +103,7 @@ def track_open():
         db.session.commit()
     
     return redirect(next_url)  # Redirige l'utilisateur vers la page cible
+<<<<<<< HEAD
     
 @app.route("/reset_stats", methods=["POST"])
 def reset_stats():
@@ -116,6 +117,8 @@ def reset_stats():
     except Exception as e:
         db.session.rollback()
         return {"success": False, "error": str(e)}, 500
+=======
+>>>>>>> 067d4116a7697d090b5cb4ea189697ecf67f2455
 
 @app.route("/capture", methods=["POST"])
 def capture():
@@ -281,4 +284,8 @@ def download_pdf():
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
+<<<<<<< HEAD
     app.run(host="0.0.0.0", port=port, debug=True)
+=======
+    app.run(host="0.0.0.0", port=port, debug=True)
+>>>>>>> 067d4116a7697d090b5cb4ea189697ecf67f2455
