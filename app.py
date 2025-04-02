@@ -232,9 +232,9 @@ def stats_dashboard():
 user_stats = db.session.query(
     Interaction.email,
     db.func.count(Interaction.id).label("action_count"),
-    db.func.sum(case([(Interaction.event_type == "email envoyé", 1)], else_=0)).label("emails_sent"),
-    db.func.sum(case([(Interaction.event_type == "lien cliqué", 1)], else_=0)).label("links_clicked"),
-    db.func.sum(case([(Interaction.event_type == "formulaire soumis", 1)], else_=0)).label("forms_submitted")
+    db.func.sum(db.case((Interaction.event_type == "email envoyé", 1), else_=0)).label("emails_sent"),
+    db.func.sum(db.case((Interaction.event_type == "lien cliqué", 1), else_=0)).label("links_clicked"),
+    db.func.sum(db.case((Interaction.event_type == "formulaire soumis", 1), else_=0)).label("forms_submitted")
 ).group_by(Interaction.email).all()
 
     # Explication à afficher sur le tableau de bord
