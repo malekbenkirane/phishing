@@ -212,7 +212,6 @@ def stats():
     
     return render_template("login.html")  # Page de connexion admin
 
-# Route pour afficher le tableau de bord des statistiques
 @app.route("/stats_dashboard")
 def stats_dashboard():
     if not session.get("logged_in"):
@@ -228,35 +227,29 @@ def stats_dashboard():
     total_clicked = 0 if total_clicked is None or total_clicked < 0 else int(total_clicked)
     total_submitted = 0 if total_submitted is None or total_submitted < 0 else int(total_submitted)
 
-    from sqlalchemy import case
-
-# Statistiques par utilisateur
-from sqlalchemy import case
-
-# Statistiques par utilisateur
-user_stats = db.session.query(
-    Interaction.email,
-    db.func.count(Interaction.id).label("action_count"),
-    db.func.sum(
-        db.case(
-            (Interaction.event_type == "email envoyé", 1),  # Condition et valeur
-            else_=0  # Valeur par défaut si la condition n'est pas remplie
-        )
-    ).label("emails_sent"),
-    db.func.sum(
-        db.case(
-            (Interaction.event_type == "lien cliqué", 1),  # Condition et valeur
-            else_=0  # Valeur par défaut
-        )
-    ).label("links_clicked"),
-    db.func.sum(
-        db.case(
-            (Interaction.event_type == "formulaire soumis", 1),  # Condition et valeur
-            else_=0  # Valeur par défaut
-        )
-    ).label("forms_submitted")
-).group_by(Interaction.email).all()
-
+    # Statistiques par utilisateur
+    user_stats = db.session.query(
+        Interaction.email,
+        db.func.count(Interaction.id).label("action_count"),
+        db.func.sum(
+            db.case(
+                (Interaction.event_type == "email envoyé", 1),
+                else_=0
+            )
+        ).label("emails_sent"),
+        db.func.sum(
+            db.case(
+                (Interaction.event_type == "lien cliqué", 1),
+                else_=0
+            )
+        ).label("links_clicked"),
+        db.func.sum(
+            db.case(
+                (Interaction.event_type == "formulaire soumis", 1),
+                else_=0
+            )
+        ).label("forms_submitted")
+    ).group_by(Interaction.email).all()
 
     # Explication à afficher sur le tableau de bord
     explanation = "Les graphiques ci-dessus montrent les résultats du test de phishing réalisé. " \
@@ -282,6 +275,7 @@ user_stats = db.session.query(
                            total_submitted=total_submitted,
                            explanation=explanation,
                            user_stats=user_stats)  # Passer les statistiques par utilisateur à la vue
+
 
 
 # Route pour télécharger le rapport au format PDF
