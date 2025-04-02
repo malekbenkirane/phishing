@@ -241,6 +241,23 @@ def stats_dashboard():
                            total_clicked=total_clicked, 
                            total_submitted=total_submitted,
                            explanation=explanation)
+                           
+   @app.route("/reset_stats", methods=["POST"])
+def reset_stats():
+    if not session.get("logged_in"):
+        return redirect("/stats")
+
+    try:
+        # Supprimer toutes les interactions enregistrées dans la base de données
+        db.session.query(Interaction).delete()
+        db.session.commit()
+        print("Les statistiques ont été réinitialisées.")
+    except Exception as e:
+        print(f"Erreur lors de la réinitialisation : {e}")
+        db.session.rollback()
+    
+    return redirect("/stats_dashboard")
+                        
 
 # Route pour télécharger le rapport au format PDF
 @app.route("/download_pdf")
