@@ -6,7 +6,7 @@ from email.mime.text import MIMEText
 import matplotlib.pyplot as plt
 from fpdf import FPDF
 import urllib.parse
-
+from sqlalchemy import case
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -229,13 +229,13 @@ def stats_dashboard():
     total_submitted = 0 if total_submitted is None or total_submitted < 0 else int(total_submitted)
 
     # Statistiques par utilisateur
-    user_stats = db.session.query(
-        Interaction.email,
-        db.func.count(Interaction.id).label("action_count"),
-        db.func.sum(db.case([(Interaction.event_type == "email envoyé", 1)], else_=0)).label("emails_sent"),
-        db.func.sum(db.case([(Interaction.event_type == "lien cliqué", 1)], else_=0)).label("links_clicked"),
-        db.func.sum(db.case([(Interaction.event_type == "formulaire soumis", 1)], else_=0)).label("forms_submitted")
-    ).group_by(Interaction.email).all()
+user_stats = db.session.query(
+    Interaction.email,
+    db.func.count(Interaction.id).label("action_count"),
+    db.func.sum(case([(Interaction.event_type == "email envoyé", 1)], else_=0)).label("emails_sent"),
+    db.func.sum(case([(Interaction.event_type == "lien cliqué", 1)], else_=0)).label("links_clicked"),
+    db.func.sum(case([(Interaction.event_type == "formulaire soumis", 1)], else_=0)).label("forms_submitted")
+).group_by(Interaction.email).all()
 
     # Explication à afficher sur le tableau de bord
     explanation = "Les graphiques ci-dessus montrent les résultats du test de phishing réalisé. " \
