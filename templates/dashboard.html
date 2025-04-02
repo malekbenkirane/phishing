@@ -45,46 +45,25 @@
         <!-- Statistiques par Utilisateur -->
         <div class="mb-6">
             <h3 class="text-xl font-semibold mb-4">Statistiques par Utilisateur</h3>
-            <table class="min-w-full bg-white border border-gray-300 rounded-lg shadow">
-                <thead>
-                    <tr class="bg-gray-200">
-                        <th class="p-3 text-left">Utilisateur</th>
-                        <th class="p-3 text-left">Actions</th>
-                        <th class="p-3 text-left">Liens Cliqués</th>
-                        <th class="p-3 text-left">Formulaires Soumis</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for user in users_stats %}
-                    <tr class="border-b">
-                        <td class="p-3">{{ user.email }}</td>
-                        <td class="p-3">{{ user.actions_count }}</td>
-                        <td class="p-3">{{ user.clicked_count }}</td>
-                        <td class="p-3">{{ user.submitted_count }}</td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6">
+                {% for user in users_stats %}
+                <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
+                    <h3 class="text-lg font-semibold">{{ user.email }}</h3>
+                    <p class="text-sm text-gray-600">Emails envoyés : <span class="text-2xl font-bold">{{ user.actions_count }}</span></p>
+                    <p class="text-sm text-gray-600">Liens cliqués : <span class="text-2xl font-bold">{{ user.clicked_count }}</span></p>
+                    <p class="text-sm text-gray-600">Identifiants capturés : <span class="text-2xl font-bold">{{ user.submitted_count }}</span></p>
+                </div>
+                {% endfor %}
+            </div>
         </div>
 
-        <!-- Explications -->
+        <!-- Explications et recommandations -->
         <div class="bg-gray-100 p-4 rounded-lg shadow">
             <h2 class="text-xl font-semibold mb-4">Explications des Statistiques</h2>
             <ul class="list-disc pl-6">
-                <li><strong>Emails envoyés :</strong> Ce chiffre représente tous les emails envoyés dans le cadre du test.</li>
-                <li><strong>Liens cliqués :</strong> Cela indique combien de personnes ont cliqué sur les liens dans les emails de phishing.</li>
-                <li><strong>Identifiants capturés :</strong> Ce nombre montre combien d'utilisateurs ont entré leurs informations sur la fausse page de connexion.</li>
-            </ul>
-        </div>
-
-        <!-- Recommandations -->
-        <div class="bg-gray-100 p-4 rounded-lg shadow mt-6">
-            <h2 class="text-xl font-semibold mb-4">Recommandations</h2>
-            <ul class="list-disc pl-6">
-                <li><strong>Augmenter la vigilance :</strong> Si un nombre élevé de liens ont été cliqués, cela suggère une faible vigilance parmi les utilisateurs. Il est recommandé de renforcer la sensibilisation et les formations sur les risques de phishing.</li>
-                <li><strong>Améliorer la détection des emails suspects :</strong> Si un pourcentage élevé d'emails ont été envoyés, il est important de mettre en place une détection proactive des emails suspects afin d'éviter les tentatives de phishing réelles.</li>
-                <li><strong>Renforcer la sécurité des pages de connexion :</strong> Si des identifiants ont été capturés, il est essentiel d'améliorer la sécurité des pages de connexion en utilisant des mécanismes comme l'authentification multi-facteurs et en surveillant les accès suspects.</li>
-                <li><strong>Simuler des attaques régulièrement :</strong> Pour tester et renforcer la sécurité des utilisateurs, il est recommandé de réaliser des simulations de phishing régulièrement afin d'évaluer la préparation et d'ajuster les formations et protections.</li>
+                <li><strong>Emails envoyés :</strong> Nombre total d'emails envoyés.</li>
+                <li><strong>Liens cliqués :</strong> Nombre d'emails dont le lien a été cliqué.</li>
+                <li><strong>Identifiants capturés :</strong> Nombre d'identifiants soumis via le faux site.</li>
             </ul>
         </div>
     </div>
@@ -112,29 +91,6 @@
                 }
             }
         });
-
-        // Mise à jour des données via AJAX toutes les 5 secondes
-        setInterval(function() {
-            fetch("/get_stats")
-                .then(response => response.json())
-                .then(data => {
-                    if (data.sent !== undefined && data.clicked !== undefined && data.submitted !== undefined) {
-                        // Mise à jour des statistiques affichées sur la page
-                        document.getElementById('emails-envoyes').innerText = data.sent;
-                        document.getElementById('emails-ouverts').innerText = data.clicked;
-                        document.getElementById('identifiants-captures').innerText = data.submitted;
-
-                        // Mise à jour du graphique avec les nouvelles données
-                        emailChart.data.datasets[0].data = [data.sent, data.clicked, data.submitted];
-                        emailChart.update();
-                    } else {
-                        console.error("Erreur de données reçues : ", data);
-                    }
-                })
-                .catch(error => {
-                    console.error("Erreur lors de la récupération des statistiques : ", error);
-                });
-        }, 5000);  // Mise à jour toutes les 5 secondes
     </script>
 </body>
 </html>
