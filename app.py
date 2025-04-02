@@ -228,7 +228,9 @@ def stats_dashboard():
     total_clicked = 0 if total_clicked is None or total_clicked < 0 else int(total_clicked)
     total_submitted = 0 if total_submitted is None or total_submitted < 0 else int(total_submitted)
 
-    # Statistiques par utilisateur
+    from sqlalchemy import case
+
+# Statistiques par utilisateur
 user_stats = db.session.query(
     Interaction.email,
     db.func.count(Interaction.id).label("action_count"),
@@ -236,6 +238,7 @@ user_stats = db.session.query(
     db.func.sum(db.case((Interaction.event_type == "lien cliqué", 1), else_=0)).label("links_clicked"),
     db.func.sum(db.case((Interaction.event_type == "formulaire soumis", 1), else_=0)).label("forms_submitted")
 ).group_by(Interaction.email).all()
+
 
     # Explication à afficher sur le tableau de bord
     explanation = "Les graphiques ci-dessus montrent les résultats du test de phishing réalisé. " \
