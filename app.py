@@ -107,7 +107,8 @@ def track_open():
 @app.route("/capture", methods=["POST"])
 def capture():
     email = request.form.get("email")
-    # Ne pas capturer ni enregistrer le mot de passe
+    password = request.form.get("password")  # Juste pour la simulation, ne l'affiche pas !
+    
     if email:
         db.session.add(Interaction(email=email, event_type="formulaire soumis"))
         db.session.commit()
@@ -211,10 +212,6 @@ def stats_dashboard():
     total_clicked = 0 if total_clicked is None or total_clicked < 0 else int(total_clicked)
     total_submitted = 0 if total_submitted is None or total_submitted < 0 else int(total_submitted)
 
-    # Calcul des taux
-    click_rate = (total_clicked / total_sent * 100) if total_sent > 0 else 0
-    submit_rate = (total_submitted / total_sent * 100) if total_sent > 0 else 0
-
     # Liste des valeurs à afficher dans le graphique
     values = [total_sent, total_clicked, total_submitted]
 
@@ -223,7 +220,15 @@ def stats_dashboard():
 
     labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
     
-# Générer les statistiques sous forme de graphique (par exemple, un graphique en camembert)
+    # Générer les statistiques sous forme de graphique (par exemple, un graphique en camembert)
+    try:
+        plt.figure(figsize=(6,6))
+        plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
+        plt.title("Statistiques du test de phishing")
+        plt.savefig("static/stats.png")
+        plt.close()
+    except Exception as e:
+        print(f"Erreur lors de la génération du graphique : {e}")
 
     # Explication à afficher sur le tableau de bord
     explanation = "Les graphiques ci-dessus montrent les résultats du test de phishing réalisé. " \
@@ -235,10 +240,7 @@ def stats_dashboard():
                            total_sent=total_sent, 
                            total_clicked=total_clicked, 
                            total_submitted=total_submitted,
-                           click_rate=click_rate,  # Ajouter le taux de clics
-                           submit_rate=submit_rate,  # Ajouter le taux de soumission
                            explanation=explanation)
-
 
 # Route pour télécharger le rapport au format PDF
 @app.route("/download_pdf")
