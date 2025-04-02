@@ -218,38 +218,27 @@ def stats():
 def stats_dashboard():
     if not session.get("logged_in"):
         return redirect("/stats")
-
-    total_sent = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="email envoyé").scalar()
-    total_clicked = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="lien cliqué").scalar()
-    total_submitted = db.session.query(db.func.coalesce(db.func.count(Interaction.id), 0)).filter_by(event_type="formulaire soumis").scalar()
-
-    # Gestion des valeurs non valides ou nulles
-    total_sent = max(0, total_sent or 0)
-    total_clicked = max(0, total_clicked or 0)
-    total_submitted = max(0, total_submitted or 0)
-
-    # Affichage des statistiques sous forme de graphique et texte
-    values = [total_sent, total_clicked, total_submitted]
-    labels = ["Emails envoyés", "Liens cliqués", "Formulaires remplis"]
     
-    # Générer les statistiques sous forme de graphique (par exemple, un graphique en camembert)
-    try:
-        plt.figure(figsize=(6, 6))
-        plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
-        plt.title("Statistiques du test de phishing")
-        plt.savefig("static/stats.png")
-        plt.close()
-    except Exception as e:
-        print(f"Erreur lors de la génération du graphique : {e}")
+    # Exemple de récupération des statistiques globales
+    total_sent = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="email envoyé").scalar() or 0
+    total_clicked = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="lien cliqué").scalar() or 0
+    total_submitted = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="formulaire soumis").scalar() or 0
 
-    explanation = "Les graphiques ci-dessus montrent les résultats du test de phishing réalisé. " \
-                  "Les emails envoyés sont suivis des liens cliqués et des formulaires soumis."
+    # Récupérer les statistiques par utilisateur
+    users_stats = db.session.query(
+        Interaction.email,
+        db.func.count(Interaction.id).label('actions_count'),
+        db.func.sum(db.case([(Interaction.event_type == "lien cliqué", 1)], else_=0)).label('clicked_count'),
+        db.func.sum(db.case([(Interaction.event_type == "formulaire soumis", 1)], else_=0)).label('submitted_count')
+    ).group_by(Interaction.email).all()
 
-    return render_template("dashboard.html", 
+    # Passer les données au template
+    return render_template("stats_dashboard.html", 
                            total_sent=total_sent, 
                            total_clicked=total_clicked, 
-                           total_submitted=total_submitted,
-                           explanation=explanation)
+                           total_submitted=total_submitted, 
+                           users_stats=users_stats)
+
                            
 @app.route("/user_stats/<user_email>")
 def user_stats(user_email):
