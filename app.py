@@ -225,7 +225,7 @@ def stats_dashboard():
         plt.figure(figsize=(6,6))
         plt.pie(values, labels=labels, autopct="%1.1f%%", colors=["blue", "orange", "red"])
         plt.title("Statistiques du test de phishing")
-        plt.savefig("static/stats.png")
+        plt.savefig("static/stats.png", bbox_inches="tight")
         plt.close()
     except Exception as e:
         print(f"Erreur lors de la génération du graphique : {e}")
