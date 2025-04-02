@@ -242,7 +242,7 @@ def stats_dashboard():
                            total_submitted=total_submitted,
                            explanation=explanation)
                            
-   @app.route("/reset_stats", methods=["POST"])
+ @app.route("/reset_stats", methods=["POST"])
 def reset_stats():
     if not session.get("logged_in"):
         return redirect("/stats")
@@ -257,6 +257,7 @@ def reset_stats():
         db.session.rollback()
     
     return redirect("/stats_dashboard")
+
                         
 
 # Route pour télécharger le rapport au format PDF
