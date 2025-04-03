@@ -242,8 +242,20 @@ def stats_dashboard():
         email, sent, clicked, submitted, action_date = user
         click_rate = (clicked / sent * 100) if sent > 0 else 0
         submit_rate = (submitted / sent * 100) if sent > 0 else 0
-        # Si action_date est None, on assigne une valeur par défaut
-        action_date_display = action_date.strftime('%d/%m/%Y %H:%M') if action_date else 'Date non disponible'
+
+        # Vérification et conversion de action_date si nécessaire
+        if action_date and isinstance(action_date, str):
+            try:
+                action_date = datetime.strptime(action_date, '%Y-%m-%d %H:%M:%S')
+            except ValueError as e:
+                print(f"Erreur de conversion de la date : {action_date} - {e}")
+                action_date = None
+
+        action_date_display = (
+            action_date.strftime('%d/%m/%Y %H:%M') if isinstance(action_date, datetime) 
+            else 'Date non disponible'
+        )
+
         user_data.append({
             "email": email,
             "sent": sent,
@@ -260,8 +272,6 @@ def stats_dashboard():
                            total_submitted=total_submitted,
                            user_data=user_data,
                            user_stats=user_stats)
-
-
 @app.template_filter('date')
 def date_filter(value, format='%d/%m/%Y %H:%M'):
     if isinstance(value, datetime):
