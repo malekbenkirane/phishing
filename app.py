@@ -12,7 +12,7 @@ from sqlalchemy import func
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# Configuration de la base de données SQLite
+# Configuration de la base de données SQLite data
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///phishing_data.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
