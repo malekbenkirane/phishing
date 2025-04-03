@@ -239,7 +239,7 @@ def stats_dashboard():
 
     user_data = []
     for user in user_stats:
-        email, sent, clicked, submitted = user
+        email, sent, clicked, submitted, *_ = user
         click_rate = (clicked / sent * 100) if sent > 0 else 0
         submit_rate = (submitted / sent * 100) if sent > 0 else 0
         user_data.append({
