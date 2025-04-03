@@ -226,11 +226,34 @@ def stats_dashboard():
     total_clicked = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="lien cliqué").scalar() or 0
     total_submitted = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="formulaire soumis").scalar() or 0
 
-    # Passer les données au template
+    # Récupérer les stats par utilisateur
+    user_stats = db.session.query(
+        Interaction.email,
+        db.func.count(Interaction.id).filter(Interaction.event_type == "email envoyé").label("sent"),
+        db.func.count(Interaction.id).filter(Interaction.event_type == "lien cliqué").label("clicked"),
+        db.func.count(Interaction.id).filter(Interaction.event_type == "formulaire soumis").label("submitted"),
+    ).group_by(Interaction.email).all()
+
+    user_data = []
+    for user in user_stats:
+        email, sent, clicked, submitted = user
+        click_rate = (clicked / sent * 100) if sent > 0 else 0
+        submit_rate = (submitted / sent * 100) if sent > 0 else 0
+        user_data.append({
+            "email": email,
+            "sent": sent,
+            "clicked": clicked,
+            "submitted": submitted,
+            "click_rate": round(click_rate, 2),
+            "submit_rate": round(submit_rate, 2),
+        })
+
     return render_template("stats_dashboard.html", 
                            total_sent=total_sent, 
                            total_clicked=total_clicked, 
-                           total_submitted=total_submitted)
+                           total_submitted=total_submitted,
+                           user_data=user_data)
+
 
 
 
