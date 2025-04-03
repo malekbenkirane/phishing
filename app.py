@@ -1,6 +1,5 @@
 ﻿
 ﻿from flask import Flask, render_template, request, redirect, session, send_file, jsonify
-
 from flask_sqlalchemy import SQLAlchemy
 import os
 import smtplib
@@ -10,7 +9,6 @@ from fpdf import FPDF
 import urllib.parse
 from datetime import datetime
 from sqlalchemy import func
-
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -96,8 +94,7 @@ def send_email(recipient_email, recipient_name, phishing_link):
     except Exception as e:
         print(f"? Erreur lors de l'envoi de l'email : {e}")
         
-        
-@app.route("/track_open")
+        @app.route("/track_open")
 def track_open():
     email = request.args.get("email")
     next_url = request.args.get("next", "https://outlook.com")  # URL de redirection par défaut
