@@ -218,20 +218,19 @@ def stats():
 def stats_dashboard():
     if not session.get("logged_in"):
         return redirect("/stats")
-    
-    # Exemple de récupération des statistiques globales
+
+    # Statistiques globales
     total_sent = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="email envoyé").scalar() or 0
     total_clicked = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="lien cliqué").scalar() or 0
     total_submitted = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="formulaire soumis").scalar() or 0
-
-
 
     # Passer les données au template
     return render_template("stats_dashboard.html", 
                            total_sent=total_sent, 
                            total_clicked=total_clicked, 
-                           total_submitted=total_submitted, 
-                           users_stats=users_stats)
+                           total_submitted=total_submitted)
+
+
 
                            
 @app.route("/user_stats/<user_email>")

@@ -11,12 +11,11 @@
 
     <div class="container mx-auto my-8 p-4 bg-white shadow-lg rounded-lg">
         <h1 class="text-3xl font-semibold text-center mb-6">Tableau de Bord - Phishing</h1>
-		
-		<button id="reset-stats" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg shadow">
-    Réinitialiser les statistiques
-</button>
-
         
+        <button id="reset-stats" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg shadow">
+            Réinitialiser les statistiques
+        </button>
+
         <!-- Statistiques Générales -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6">
             <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
@@ -41,8 +40,6 @@
             <canvas id="emailChart" width="400" height="200"></canvas>
         </div>
 
-       
-
         <!-- Explications -->
         <div class="bg-gray-100 p-4 rounded-lg shadow">
             <h2 class="text-xl font-semibold mb-4">Explications des Statistiques</h2>
@@ -53,31 +50,32 @@
             </ul>
         </div>
     </div>
-<script>
-    document.getElementById('reset-stats').addEventListener('click', function () {
-        if (confirm("Voulez-vous vraiment réinitialiser les statistiques ?")) {
-            fetch('/reset_stats', { method: 'POST' })
-                .then(response => response.json())
-                .then(data => {
-                    if (data.success) {
-                        // Mettre à jour les statistiques affichées à zéro
-                        document.getElementById('emails-envoyes').innerText = '0';
-                        document.getElementById('emails-ouverts').innerText = '0';
-                        document.getElementById('identifiants-captures').innerText = '0';
 
-                        // Mettre à jour le graphique
-                        emailChart.data.datasets[0].data = [0, 0, 0];
-                        emailChart.update();
+    <script>
+        document.getElementById('reset-stats').addEventListener('click', function () {
+            if (confirm("Voulez-vous vraiment réinitialiser les statistiques ?")) {
+                fetch('/reset_stats', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Mettre à jour les statistiques affichées à zéro
+                            document.getElementById('emails-envoyes').innerText = '0';
+                            document.getElementById('emails-ouverts').innerText = '0';
+                            document.getElementById('identifiants-captures').innerText = '0';
 
-                        alert("Statistiques réinitialisées avec succès !");
-                    } else {
-                        alert("Erreur lors de la réinitialisation.");
-                    }
-                })
-                .catch(error => console.error("Erreur :", error));
-        }
-    });
-</script>
+                            // Mettre à jour le graphique
+                            emailChart.data.datasets[0].data = [0, 0, 0];
+                            emailChart.update();
+
+                            alert("Statistiques réinitialisées avec succès !");
+                        } else {
+                            alert("Erreur lors de la réinitialisation.");
+                        }
+                    })
+                    .catch(error => console.error("Erreur :", error));
+            }
+        });
+    </script>
 
     <script>
         // Initialisation du graphique
@@ -126,5 +124,6 @@
                 });
         }, 5000);  // Mise à jour toutes les 5 secondes
     </script>
+
 </body>
 </html>
