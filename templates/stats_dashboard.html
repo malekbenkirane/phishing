@@ -1,0 +1,129 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Tableau de Bord - Statistiques Phishing</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.16/dist/tailwind.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body class="bg-gray-100 text-gray-900">
+
+    <div class="container mx-auto my-8 p-4 bg-white shadow-lg rounded-lg">
+        <h1 class="text-3xl font-semibold text-center mb-6">Tableau de Bord - Phishing</h1>
+        
+        <button id="reset-stats" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg shadow">
+            Réinitialiser les statistiques
+        </button>
+
+        <!-- Statistiques Générales -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6">
+            <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
+                <h3 class="text-lg font-semibold">Emails envoyés</h3>
+                <p id="emails-envoyes" class="text-2xl font-bold">{{ total_sent }}</p>
+                <p class="text-sm text-gray-600">Nombre total d'emails envoyés.</p>
+            </div>
+            <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
+                <h3 class="text-lg font-semibold">Liens cliqués</h3>
+                <p id="emails-ouverts" class="text-2xl font-bold">{{ total_clicked }}</p>
+                <p class="text-sm text-gray-600">Nombre de liens cliqués dans les emails.</p>
+            </div>
+            <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
+                <h3 class="text-lg font-semibold">Identifiants capturés</h3>
+                <p id="identifiants-captures" class="text-2xl font-bold">{{ total_submitted }}</p>
+                <p class="text-sm text-gray-600">Nombre d'identifiants capturés via la fausse page.</p>
+            </div>
+        </div>
+
+        <!-- Graphiques -->
+        <div class="mb-8">
+            <canvas id="emailChart" width="400" height="200"></canvas>
+        </div>
+
+        <!-- Explications -->
+        <div class="bg-gray-100 p-4 rounded-lg shadow">
+            <h2 class="text-xl font-semibold mb-4">Explications des Statistiques</h2>
+            <ul class="list-disc pl-6">
+                <li><strong>Emails envoyés :</strong> Ce chiffre représente tous les emails envoyés dans le cadre du test.</li>
+                <li><strong>Liens cliqués :</strong> Cela indique combien de personnes ont cliqué sur les liens dans les emails de phishing.</li>
+                <li><strong>Identifiants capturés :</strong> Ce nombre montre combien d'utilisateurs ont entré leurs informations sur la fausse page de connexion.</li>
+            </ul>
+        </div>
+    </div>
+
+    <script>
+        document.getElementById('reset-stats').addEventListener('click', function () {
+            if (confirm("Voulez-vous vraiment réinitialiser les statistiques ?")) {
+                fetch('/reset_stats', { method: 'POST' })
+                    .then(response => response.json())
+                    .then(data => {
+                        if (data.success) {
+                            // Mettre à jour les statistiques affichées à zéro
+                            document.getElementById('emails-envoyes').innerText = '0';
+                            document.getElementById('emails-ouverts').innerText = '0';
+                            document.getElementById('identifiants-captures').innerText = '0';
+
+                            // Mettre à jour le graphique
+                            emailChart.data.datasets[0].data = [0, 0, 0];
+                            emailChart.update();
+
+                            alert("Statistiques réinitialisées avec succès !");
+                        } else {
+                            alert("Erreur lors de la réinitialisation.");
+                        }
+                    })
+                    .catch(error => console.error("Erreur :", error));
+            }
+        });
+    </script>
+
+    <script>
+        // Initialisation du graphique
+        var ctx = document.getElementById('emailChart').getContext('2d');
+        var emailChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: ['Emails envoyés', 'Liens cliqués', 'Identifiants capturés'],
+                datasets: [{
+                    label: 'Statistiques de phishing',
+                    data: [{{ total_sent }}, {{ total_clicked }}, {{ total_submitted }}],
+                    backgroundColor: ['#4CAF50', '#FF9800', '#F44336'],
+                    borderColor: ['#388E3C', '#F57C00', '#D32F2F'],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                scales: {
+                    y: {
+                        beginAtZero: true
+                    }
+                }
+            }
+        });
+
+        // Mise à jour des données via AJAX toutes les 5 secondes
+        setInterval(function() {
+            fetch("/get_stats")
+                .then(response => response.json())
+                .then(data => {
+                    if (data.sent !== undefined && data.clicked !== undefined && data.submitted !== undefined) {
+                        // Mise à jour des statistiques affichées sur la page
+                        document.getElementById('emails-envoyes').innerText = data.sent;
+                        document.getElementById('emails-ouverts').innerText = data.clicked;
+                        document.getElementById('identifiants-captures').innerText = data.submitted;
+
+                        // Mise à jour du graphique avec les nouvelles données
+                        emailChart.data.datasets[0].data = [data.sent, data.clicked, data.submitted];
+                        emailChart.update();
+                    } else {
+                        console.error("Erreur de données reçues : ", data);
+                    }
+                })
+                .catch(error => {
+                    console.error("Erreur lors de la récupération des statistiques : ", error);
+                });
+        }, 5000);  // Mise à jour toutes les 5 secondes
+    </script>
+
+</body>
+</html>
