@@ -224,17 +224,6 @@ def stats_dashboard():
     total_clicked = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="lien cliqué").scalar() or 0
     total_submitted = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="formulaire soumis").scalar() or 0
 
-    # Récupérer les statistiques par utilisateur
-    users_stats = db.session.query(
-    Interaction.email,
-    db.func.count(Interaction.id).label('actions_count'),
-    db.func.sum(
-        db.case((Interaction.event_type == "lien cliqué", 1), else_=0)
-    ).label('clicked_count'),
-    db.func.sum(
-        db.case((Interaction.event_type == "formulaire soumis", 1), else_=0)
-    ).label('submitted_count')
-).group_by(Interaction.email).all()
 
 
     # Passer les données au template
@@ -302,29 +291,6 @@ def get_stats():
     })
 
 
-# Route pour télécharger le rapport au format PDF
-@app.route("/download_pdf")
-def download_pdf():
-    if not session.get("logged_in"):
-        return redirect("/stats")
-    
-    pdf = FPDF()
-    pdf.add_page()
-    pdf.set_font("Arial", "B", 16)
-    pdf.cell(200, 10, "Rapport de Test de Phishing - Régence", ln=True, align='C')
-    pdf.ln(10)
-    pdf.set_font("Arial", size=12)
-    
-    total_sent = Interaction.query.filter_by(event_type="email envoyé").count()
-    total_clicked = Interaction.query.filter_by(event_type="lien cliqué").count()
-    total_submitted = Interaction.query.filter_by(event_type="formulaire soumis").count()
-    
-    pdf.cell(200, 10, f"Emails envoyés : {total_sent}", ln=True)
-    pdf.cell(200, 10, f"Liens cliqués : {total_clicked}", ln=True)
-    pdf.cell(200, 10, f"Formulaires remplis : {total_submitted}", ln=True)
-    
-    pdf.output("report.pdf")
-    return send_file("report.pdf", as_attachment=True)
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
