@@ -218,7 +218,7 @@ def stats():
 def stats_dashboard():
     if not session.get("logged_in"):
         return redirect("/stats")
-return render_template('stats_dashboard.html', total_sent=100, total_clicked=50, total_submitted=30)
+
     # Statistiques globales
     total_sent = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="email envoyé").scalar() or 0
     total_clicked = db.session.query(db.func.count(Interaction.id)).filter_by(event_type="lien cliqué").scalar() or 0
@@ -229,6 +229,7 @@ return render_template('stats_dashboard.html', total_sent=100, total_clicked=50,
                            total_sent=total_sent, 
                            total_clicked=total_clicked, 
                            total_submitted=total_submitted)
+
 
 
 
