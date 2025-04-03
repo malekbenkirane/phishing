@@ -237,6 +237,9 @@ def stats_dashboard():
         db.func.max(Interaction.timestamp).label("action_date")
     ).group_by(Interaction.email).all()
 
+    # Debugging : Afficher les résultats récupérés
+    print(user_stats)  # Affichez les résultats pour vérifier si des dates sont présentes
+
     user_data = []
     for user in user_stats:
         email, sent, clicked, submitted, action_date = user
@@ -260,6 +263,7 @@ def stats_dashboard():
                            total_submitted=total_submitted,
                            user_data=user_data,
                            user_stats=user_stats)
+
 
 
 
