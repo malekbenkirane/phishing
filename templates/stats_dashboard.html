@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+﻿﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -86,7 +86,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3 px-4 text-center">{{ user.action_date if user.action_date != 'Date non disponible' else 'Aucune action' }}</td> <!-- Affichage de la date -->
+                        <td class="py-3 px-4 text-center">{{ user['action_date'] | date('d/m/Y H:i') }}</td> <!-- Affichage de la date -->
 
                     </tr>
                     {% endfor %}

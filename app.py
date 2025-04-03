@@ -1,4 +1,6 @@
+﻿
 ﻿from flask import Flask, render_template, request, redirect, session, send_file, jsonify
+
 from flask_sqlalchemy import SQLAlchemy
 import os
 import smtplib
@@ -8,6 +10,7 @@ from fpdf import FPDF
 import urllib.parse
 from datetime import datetime
 from sqlalchemy import func
+
 
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
@@ -235,25 +238,16 @@ def stats_dashboard():
         db.func.max(Interaction.timestamp).label("action_date")
     ).group_by(Interaction.email).all()
 
+    # Debugging : Afficher les résultats récupérés
+    print(user_stats)  # Affichez les résultats pour vérifier si des dates sont présentes
+
     user_data = []
     for user in user_stats:
         email, sent, clicked, submitted, action_date = user
         click_rate = (clicked / sent * 100) if sent > 0 else 0
         submit_rate = (submitted / sent * 100) if sent > 0 else 0
-
-        # Vérification et conversion de action_date si nécessaire
-        if action_date and isinstance(action_date, str):
-            try:
-                action_date = datetime.strptime(action_date, '%Y-%m-%d %H:%M:%S')
-            except ValueError as e:
-                print(f"Erreur de conversion de la date : {action_date} - {e}")
-                action_date = None
-
-        action_date_display = (
-            action_date.strftime('%d/%m/%Y %H:%M') if isinstance(action_date, datetime) 
-            else 'Date non disponible'
-        )
-
+        # Si action_date est None, on assigne une valeur par défaut
+        action_date_display = action_date.strftime('%d/%m/%Y %H:%M') if action_date else 'Date non disponible'
         user_data.append({
             "email": email,
             "sent": sent,
@@ -270,6 +264,12 @@ def stats_dashboard():
                            total_submitted=total_submitted,
                            user_data=user_data,
                            user_stats=user_stats)
+
+
+
+
+
+
 @app.template_filter('date')
 def date_filter(value, format='%d/%m/%Y %H:%M'):
     if isinstance(value, datetime):
@@ -339,5 +339,3 @@ def get_stats():
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
-
-
