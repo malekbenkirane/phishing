@@ -266,10 +266,13 @@ def stats_dashboard():
                            user_stats=user_stats)
 
 
+<<<<<<< HEAD
 
 
 
 
+=======
+>>>>>>> 4994870ffaa302517743b83a6aea0ae7825da08e
 @app.template_filter('date')
 def date_filter(value, format='%d/%m/%Y %H:%M'):
     if isinstance(value, datetime):
