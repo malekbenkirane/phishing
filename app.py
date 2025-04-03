@@ -8,6 +8,7 @@ import matplotlib.pyplot as plt
 from fpdf import FPDF
 import urllib.parse
 from datetime import datetime
+from sqlalchemy import func
 
 
 app = Flask(__name__)
@@ -233,6 +234,7 @@ def stats_dashboard():
         db.func.count(Interaction.id).filter(Interaction.event_type == "email envoyé").label("sent"),
         db.func.count(Interaction.id).filter(Interaction.event_type == "lien cliqué").label("clicked"),
         db.func.count(Interaction.id).filter(Interaction.event_type == "formulaire soumis").label("submitted"),
+        db.func.max(Interaction.timestamp).label("action_date")
     ).group_by(Interaction.email).all()
 
     user_data = []
@@ -254,6 +256,7 @@ def stats_dashboard():
                            total_clicked=total_clicked, 
                            total_submitted=total_submitted,
                            user_data=user_data)
+                           user_stats=user_stats
 
 
 
