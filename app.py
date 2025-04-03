@@ -7,6 +7,7 @@ from email.mime.text import MIMEText
 import matplotlib.pyplot as plt
 from fpdf import FPDF
 import urllib.parse
+from datetime import datetime
 
 
 app = Flask(__name__)
@@ -256,7 +257,11 @@ def stats_dashboard():
 
 
 
-
+@app.template_filter('date')
+def date_filter(value, format='%d/%m/%Y %H:%M'):
+    if value is not None:
+        return value.strftime(format)
+    return "Texte de retour"
 
                            
 @app.route("/user_stats/<user_email>")
