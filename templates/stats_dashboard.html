@@ -10,12 +10,16 @@
 <body class="bg-gray-100 text-gray-900">
 
     <div class="container mx-auto my-8 p-6 bg-white shadow-lg rounded-lg">
-        <h1 class="text-3xl font-semibold text-center mb-6">📊 Tableau de Bord - Phishing</h1>
+	        <!-- Bouton de réinitialisation -->
+        <div class="relative">
+    <button id="reset-stats" 
+        class="absolute top-0 right-0 mt-4 mr-4 px-4 py-2 bg-red-500 text-white rounded-lg shadow">
+        Réinitialiser les statistiques
+    </button>
+</div>
+        <h1 class="text-3xl font-semibold text-center mb-6">📊 Rapport de Test - Phishing Regence</h1>
 
-        <!-- Bouton de réinitialisation -->
-        <button id="reset-stats" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg shadow">
-            Réinitialiser les statistiques
-        </button>
+
 
         <!-- Statistiques générales -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6">
