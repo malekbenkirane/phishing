@@ -263,13 +263,7 @@ def stats_dashboard():
                            user_stats=user_stats)
 
 
-<<<<<<< HEAD
 
-
-
-
-=======
->>>>>>> 4994870ffaa302517743b83a6aea0ae7825da08e
 @app.template_filter('date')
 def date_filter(value, format='%d/%m/%Y %H:%M'):
     if isinstance(value, datetime):
@@ -333,8 +327,6 @@ def get_stats():
         "clicked": total_clicked,
         "submitted": total_submitted
     })
-
-
 
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
