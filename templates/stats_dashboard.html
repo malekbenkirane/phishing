@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ï»¿<!DOCTYPE html>
 <html lang="fr">
 <head>
     <meta charset="UTF-8">
@@ -13,25 +13,25 @@
         <h1 class="text-3xl font-semibold text-center mb-6">Tableau de Bord - Phishing</h1>
         
         <button id="reset-stats" class="mt-4 px-4 py-2 bg-red-500 text-white rounded-lg shadow">
-            Réinitialiser les statistiques
+            RÃ©initialiser les statistiques
         </button>
 
-        <!-- Statistiques Générales -->
+        <!-- Statistiques GÃ©nÃ©rales -->
         <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-6 mb-6">
             <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
-                <h3 class="text-lg font-semibold">Emails envoyés</h3>
+                <h3 class="text-lg font-semibold">Emails envoyÃ©s</h3>
                 <p id="emails-envoyes" class="text-2xl font-bold">{{ total_sent }}</p>
-                <p class="text-sm text-gray-600">Nombre total d'emails envoyés.</p>
+                <p class="text-sm text-gray-600">Nombre total d'emails envoyÃ©s.</p>
             </div>
             <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
-                <h3 class="text-lg font-semibold">Liens cliqués</h3>
+                <h3 class="text-lg font-semibold">Liens cliquÃ©s</h3>
                 <p id="emails-ouverts" class="text-2xl font-bold">{{ total_clicked }}</p>
-                <p class="text-sm text-gray-600">Nombre de liens cliqués dans les emails.</p>
+                <p class="text-sm text-gray-600">Nombre de liens cliquÃ©s dans les emails.</p>
             </div>
             <div class="stat-card p-4 bg-gray-200 rounded-lg shadow">
-                <h3 class="text-lg font-semibold">Identifiants capturés</h3>
+                <h3 class="text-lg font-semibold">Identifiants capturÃ©s</h3>
                 <p id="identifiants-captures" class="text-2xl font-bold">{{ total_submitted }}</p>
-                <p class="text-sm text-gray-600">Nombre d'identifiants capturés via la fausse page.</p>
+                <p class="text-sm text-gray-600">Nombre d'identifiants capturÃ©s via la fausse page.</p>
             </div>
         </div>
 
@@ -44,32 +44,32 @@
         <div class="bg-gray-100 p-4 rounded-lg shadow">
             <h2 class="text-xl font-semibold mb-4">Explications des Statistiques</h2>
             <ul class="list-disc pl-6">
-                <li><strong>Emails envoyés :</strong> Ce chiffre représente tous les emails envoyés dans le cadre du test.</li>
-                <li><strong>Liens cliqués :</strong> Cela indique combien de personnes ont cliqué sur les liens dans les emails de phishing.</li>
-                <li><strong>Identifiants capturés :</strong> Ce nombre montre combien d'utilisateurs ont entré leurs informations sur la fausse page de connexion.</li>
+                <li><strong>Emails envoyÃ©s :</strong> Ce chiffre reprÃ©sente tous les emails envoyÃ©s dans le cadre du test.</li>
+                <li><strong>Liens cliquÃ©s :</strong> Cela indique combien de personnes ont cliquÃ© sur les liens dans les emails de phishing.</li>
+                <li><strong>Identifiants capturÃ©s :</strong> Ce nombre montre combien d'utilisateurs ont entrÃ© leurs informations sur la fausse page de connexion.</li>
             </ul>
         </div>
     </div>
 
     <script>
         document.getElementById('reset-stats').addEventListener('click', function () {
-            if (confirm("Voulez-vous vraiment réinitialiser les statistiques ?")) {
+            if (confirm("Voulez-vous vraiment rÃ©initialiser les statistiques ?")) {
                 fetch('/reset_stats', { method: 'POST' })
                     .then(response => response.json())
                     .then(data => {
                         if (data.success) {
-                            // Mettre à jour les statistiques affichées à zéro
+                            // Mettre Ã  jour les statistiques affichÃ©es Ã  zÃ©ro
                             document.getElementById('emails-envoyes').innerText = '0';
                             document.getElementById('emails-ouverts').innerText = '0';
                             document.getElementById('identifiants-captures').innerText = '0';
 
-                            // Mettre à jour le graphique
+                            // Mettre Ã  jour le graphique
                             emailChart.data.datasets[0].data = [0, 0, 0];
                             emailChart.update();
 
-                            alert("Statistiques réinitialisées avec succès !");
+                            alert("Statistiques rÃ©initialisÃ©es avec succÃ¨s !");
                         } else {
-                            alert("Erreur lors de la réinitialisation.");
+                            alert("Erreur lors de la rÃ©initialisation.");
                         }
                     })
                     .catch(error => console.error("Erreur :", error));
@@ -83,7 +83,7 @@
         var emailChart = new Chart(ctx, {
             type: 'bar',
             data: {
-                labels: ['Emails envoyés', 'Liens cliqués', 'Identifiants capturés'],
+                labels: ['Emails envoyÃ©s', 'Liens cliquÃ©s', 'Identifiants capturÃ©s'],
                 datasets: [{
                     label: 'Statistiques de phishing',
                     data: [{{ total_sent }}, {{ total_clicked }}, {{ total_submitted }}],
@@ -101,28 +101,28 @@
             }
         });
 
-        // Mise à jour des données via AJAX toutes les 5 secondes
+        // Mise Ã  jour des donnÃ©es via AJAX toutes les 5 secondes
         setInterval(function() {
             fetch("/get_stats")
                 .then(response => response.json())
                 .then(data => {
                     if (data.sent !== undefined && data.clicked !== undefined && data.submitted !== undefined) {
-                        // Mise à jour des statistiques affichées sur la page
+                        // Mise Ã  jour des statistiques affichÃ©es sur la page
                         document.getElementById('emails-envoyes').innerText = data.sent;
                         document.getElementById('emails-ouverts').innerText = data.clicked;
                         document.getElementById('identifiants-captures').innerText = data.submitted;
 
-                        // Mise à jour du graphique avec les nouvelles données
+                        // Mise Ã  jour du graphique avec les nouvelles donnÃ©es
                         emailChart.data.datasets[0].data = [data.sent, data.clicked, data.submitted];
                         emailChart.update();
                     } else {
-                        console.error("Erreur de données reçues : ", data);
+                        console.error("Erreur de donnÃ©es reÃ§ues : ", data);
                     }
                 })
                 .catch(error => {
-                    console.error("Erreur lors de la récupération des statistiques : ", error);
+                    console.error("Erreur lors de la rÃ©cupÃ©ration des statistiques : ", error);
                 });
-        }, 5000);  // Mise à jour toutes les 5 secondes
+        }, 5000);  // Mise Ã  jour toutes les 5 secondes
     </script>
 
 </body>

@@ -169,7 +169,8 @@ def send_email_route():
 
             # Lire les emails et noms depuis le fichier CSV
             try:
-                with open(file_path, mode="r", newline="") as csvfile:
+                with open(file_path, mode="r", newline="", encoding="utf-8") as csvfile:
+
                     reader = csv.reader(csvfile)
                     next(reader)  # Ignorer l'entête du fichier CSV
 
