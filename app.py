@@ -91,6 +91,7 @@ def send_email(recipient_email, recipient_name, phishing_link):
         db.session.commit()
         print(f"? Email envoyé à {recipient_email}")
 
+    
     except Exception as e:
         print(f"? Erreur lors de l'envoi de l'email : {e}")
         
@@ -107,6 +108,7 @@ def track_open():
     return redirect(next_url)  # Redirige l'utilisateur vers la page cible
 
     
+
 @app.route("/reset_stats", methods=["POST"])
 def reset_stats():
     if not session.get("logged_in"):
