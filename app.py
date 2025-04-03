@@ -242,6 +242,8 @@ def stats_dashboard():
         email, sent, clicked, submitted, action_date = user
         click_rate = (clicked / sent * 100) if sent > 0 else 0
         submit_rate = (submitted / sent * 100) if sent > 0 else 0
+        # Si action_date est None, on assigne une valeur par défaut
+        action_date_display = action_date.strftime('%d/%m/%Y %H:%M') if action_date else 'Date non disponible'
         user_data.append({
             "email": email,
             "sent": sent,
@@ -249,7 +251,7 @@ def stats_dashboard():
             "submitted": submitted,
             "click_rate": round(click_rate, 2),
             "submit_rate": round(submit_rate, 2),
-            "action_date": action_date if action_date else 'Aucune action'  # Ajoutez cette ligne pour gérer les valeurs nulles
+            "action_date": action_date_display
         })
 
     return render_template("stats_dashboard.html", 
@@ -258,6 +260,7 @@ def stats_dashboard():
                            total_submitted=total_submitted,
                            user_data=user_data,
                            user_stats=user_stats)
+
 
 
 
