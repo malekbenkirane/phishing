@@ -86,7 +86,8 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3 px-4 text-center">{{ user.action_date | date('d/m/Y H:i') }}</td> <!-- Affichage de la date -->
+                        <td class="py-3 px-4 text-center">{{ user['action_date'] | date('d/m/Y H:i') }}</td> <!-- Affichage de la date -->
+
                     </tr>
                     {% endfor %}
                 </tbody>

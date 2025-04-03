@@ -230,26 +230,29 @@ def stats_dashboard():
 
     # Récupérer les stats par utilisateur
     user_stats = db.session.query(
-        Interaction.email,
-        db.func.count(Interaction.id).filter(Interaction.event_type == "email envoyé").label("sent"),
-        db.func.count(Interaction.id).filter(Interaction.event_type == "lien cliqué").label("clicked"),
-        db.func.count(Interaction.id).filter(Interaction.event_type == "formulaire soumis").label("submitted"),
-        db.func.max(Interaction.timestamp).label("action_date")
-    ).group_by(Interaction.email).all()
+    Interaction.email,
+    db.func.count(Interaction.id).filter(Interaction.event_type == "email envoyé").label("sent"),
+    db.func.count(Interaction.id).filter(Interaction.event_type == "lien cliqué").label("clicked"),
+    db.func.count(Interaction.id).filter(Interaction.event_type == "formulaire soumis").label("submitted"),
+    db.func.max(Interaction.timestamp).label("action_date")
+).group_by(Interaction.email).all()
 
-    user_data = []
-    for user in user_stats:
-        email, sent, clicked, submitted, action_date = user
-        click_rate = (clicked / sent * 100) if sent > 0 else 0
-        submit_rate = (submitted / sent * 100) if sent > 0 else 0
-        user_data.append({
-            "email": email,
-            "sent": sent,
-            "clicked": clicked,
-            "submitted": submitted,
-            "click_rate": round(click_rate, 2),
-            "submit_rate": round(submit_rate, 2),
-        })
+# Vérifiez la structure et corrigez si nécessaire
+user_data = []
+for user in user_stats:
+    email, sent, clicked, submitted, action_date = user
+    click_rate = (clicked / sent * 100) if sent > 0 else 0
+    submit_rate = (submitted / sent * 100) if sent > 0 else 0
+    user_data.append({
+        "email": email,
+        "sent": sent,
+        "clicked": clicked,
+        "submitted": submitted,
+        "click_rate": round(click_rate, 2),
+        "submit_rate": round(submit_rate, 2),
+        "action_date": action_date if action_date else 'Aucune action'  # Ajoutez cette ligne pour gérer les valeurs nulles
+    })
+
 
     return render_template("stats_dashboard.html", 
                            total_sent=total_sent, 
@@ -262,9 +265,10 @@ def stats_dashboard():
 
 @app.template_filter('date')
 def date_filter(value, format='%d/%m/%Y %H:%M'):
-    if value is not None:
+    if isinstance(value, datetime):
         return value.strftime(format)
-    return "Texte de retour"
+    return 'Date non disponible'  # Ajoutez un message plus clair si la valeur est nulle ou incorrecte
+
 
                            
 @app.route("/user_stats/<user_email>")
