@@ -26,6 +26,7 @@ class Interaction(db.Model):
     event_type = db.Column(db.String(50), nullable=False)  # reçu, ouvert, cliqué, soumis
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
 
+
 # Création des tables
 with app.app_context():
     db.create_all()
@@ -69,7 +70,7 @@ def send_email(recipient_email, recipient_name, phishing_link):
 
         <hr>
         <p><strong>Département Informatique - Régence</strong><br>
-        Assistance IT Régence<br>
+        Assistance-IT Régence<br>
         www.regence.com<br>
         655 Rue de l'Argon, Québec, QC G2N 2G7</p>
     </body>
