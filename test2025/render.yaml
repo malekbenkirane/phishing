@@ -1,7 +1,7 @@
 services:
   - type: web
     name: phishing-app
-    env: python
+    runtime: python
+    pythonVersion: "3.9"
     buildCommand: "pip install -r requirements.txt"
-    startCommand: "python app.py"
-    plan: free
+    startCommand: "python3 app.py"
