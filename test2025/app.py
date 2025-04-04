@@ -337,14 +337,10 @@ def get_stats():
     })
 
 
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     from sys import executable
     import subprocess
     subprocess.run([executable, "-m", "flask", "run", "--host=0.0.0.0", f"--port={port}"])
-
-
-
 
 
