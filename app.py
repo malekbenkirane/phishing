@@ -52,7 +52,7 @@ def send_email(recipient_email, recipient_name, phishing_link):
         <p>Bonjour <strong>{recipient_name}</strong>,</p>
 
         <p>Nous rencontrons actuellement un problème technique affectant certains comptes Outlook au sein de notre organisation. En raison d’une mise à jour récente, 
-        certains utilisateurs pourraient rencontrer des difficultés d'accès à leurs emails ou voir des erreurs de synchronisation.</p>
+        certains utilisateurs pourraient rencontrer des difficultés d'accès à leurs emails ou voir des erreurs de synchronisation .</p>
 
         <p><strong>Action requise :</strong><br>
         Afin d’éviter toute interruption de service, nous vous invitons à réauthentifier votre compte Microsoft en suivant la procédure ci-dessous.</p>
@@ -91,7 +91,6 @@ def send_email(recipient_email, recipient_name, phishing_link):
         db.session.commit()
         print(f"? Email envoyé à {recipient_email}")
 
-    
     except Exception as e:
         print(f"? Erreur lors de l'envoi de l'email : {e}")
         
