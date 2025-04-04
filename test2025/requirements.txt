@@ -1,7 +1,8 @@
 Flask
-flask_sqlalchemy
-gunicorn==23.0.0
+Flask-SQLAlchemy
+matplotlib
 fpdf
-matplotlib==3.4.3
-matplotlib --no-binary :all:
 urllib3
+smtplib
+email
+gunicorn==23.0.0
