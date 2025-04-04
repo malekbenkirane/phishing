@@ -1,4 +1,4 @@
-﻿﻿<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html lang="fr">
 
 <head>
@@ -10,19 +10,6 @@
     <link href="https://cdn.jsdelivr.net/npm/font-awesome/css/font-awesome.min.css" rel="stylesheet">
 </head>
 
-<<<<<<< HEAD
-    <div class="container mx-auto my-8 p-6 bg-white shadow-lg rounded-lg">
-	        <!-- Bouton de réinitialisation -->
-        <div class="relative">
-    <button id="reset-stats" 
-        class="absolute top-0 right-0 mt-4 mr-4 px-4 py-2 bg-red-500 text-white rounded-lg shadow">
-        Réinitialiser les statistiques
-    </button>
-</div>
-        <h1 class="text-3xl font-semibold text-center mb-6">📊 Rapport de Test - Phishing Regence</h1>
-
-
-=======
 <body class="bg-gradient-to-r from-indigo-50 to-indigo-100 text-gray-900">
 
     <div class="container mx-auto my-8 p-8 bg-white shadow-xl rounded-xl">
@@ -35,7 +22,6 @@
         </div>
 
         <h1 class="text-4xl font-semibold text-center mb-6 text-indigo-600">📊 Rapport de Test - Phishing Regence</h1>
->>>>>>> 413e71521c268d3eecac6fb2151a5fca0458b54b
 
         <!-- Statistiques générales -->
         <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mb-6">
@@ -100,7 +86,7 @@
                                 </div>
                             </div>
                         </td>
-                        <td class="py-3 px-4 text-center">{{ user['action_date'] | date('d/m/Y H:i') }}</td> <!-- Affichage de la date -->
+                        <td class="py-3 px-4 text-center">{{ user.action_date if user.action_date != 'Date non disponible' else 'Aucune action' }}</td> <!-- Affichage de la date -->
 
                     </tr>
                     {% endfor %}
