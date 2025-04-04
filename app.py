@@ -1,5 +1,4 @@
 ﻿from flask import Flask, render_template, request, redirect, session, send_file, jsonify
-
 from flask_sqlalchemy import SQLAlchemy
 import os
 import smtplib
@@ -10,11 +9,10 @@ import urllib.parse
 from datetime import datetime
 from sqlalchemy import func
 
-
 app = Flask(__name__)
 app.secret_key = "supersecretkey"
 
-# Configuration de la base de données SQLite
+# Configuration de la base de données SQLite data
 app.config["SQLALCHEMY_DATABASE_URI"] = "sqlite:///phishing_data.db"
 app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
 
@@ -26,6 +24,7 @@ class Interaction(db.Model):
     email = db.Column(db.String(120), nullable=False)
     event_type = db.Column(db.String(50), nullable=False)  # reçu, ouvert, cliqué, soumis
     timestamp = db.Column(db.DateTime, default=db.func.current_timestamp())
+
 
 # Création des tables
 with app.app_context():
@@ -53,7 +52,7 @@ def send_email(recipient_email, recipient_name, phishing_link):
         <p>Bonjour <strong>{recipient_name}</strong>,</p>
 
         <p>Nous rencontrons actuellement un problème technique affectant certains comptes Outlook au sein de notre organisation. En raison d’une mise à jour récente, 
-        certains utilisateurs pourraient rencontrer des difficultés d'accès à leurs emails ou voir des erreurs de synchronisation.</p>
+        certains utilisateurs pourraient rencontrer des difficultés d'accès à leurs emails ou voir des erreurs de synchronisation .</p>
 
         <p><strong>Action requise :</strong><br>
         Afin d’éviter toute interruption de service, nous vous invitons à réauthentifier votre compte Microsoft en suivant la procédure ci-dessous.</p>
@@ -70,7 +69,7 @@ def send_email(recipient_email, recipient_name, phishing_link):
 
         <hr>
         <p><strong>Département Informatique - Régence</strong><br>
-        Assistance IT Régence<br>
+        Assistance-IT Régence<br>
         www.regence.com<br>
         655 Rue de l'Argon, Québec, QC G2N 2G7</p>
     </body>
@@ -95,8 +94,7 @@ def send_email(recipient_email, recipient_name, phishing_link):
     except Exception as e:
         print(f"? Erreur lors de l'envoi de l'email : {e}")
         
-        
-@app.route("/track_open")
+        @app.route("/track_open")
 def track_open():
     email = request.args.get("email")
     next_url = request.args.get("next", "https://outlook.com")  # URL de redirection par défaut
@@ -109,6 +107,7 @@ def track_open():
     return redirect(next_url)  # Redirige l'utilisateur vers la page cible
 
     
+
 @app.route("/reset_stats", methods=["POST"])
 def reset_stats():
     if not session.get("logged_in"):
@@ -237,6 +236,9 @@ def stats_dashboard():
         db.func.max(Interaction.timestamp).label("action_date")
     ).group_by(Interaction.email).all()
 
+    # Debugging : Afficher les résultats récupérés
+    print(user_stats)  # Affichez les résultats pour vérifier si des dates sont présentes
+
     user_data = []
     for user in user_stats:
         email, sent, clicked, submitted, action_date = user
@@ -260,6 +262,7 @@ def stats_dashboard():
                            total_submitted=total_submitted,
                            user_data=user_data,
                            user_stats=user_stats)
+
 
 
 @app.template_filter('date')
@@ -326,10 +329,6 @@ def get_stats():
         "submitted": total_submitted
     })
 
-
-
 if __name__ == "__main__":
     port = int(os.environ.get("PORT", 5000))
     app.run(host="0.0.0.0", port=port, debug=True)
-
-
