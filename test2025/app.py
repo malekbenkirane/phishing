@@ -1,4 +1,11 @@
-﻿from flask import Flask, render_template, request, redirect, session, send_file, jsonify
+﻿import sys
+print(sys.version)
+import pkg_resources
+installed_packages = pkg_resources.working_set
+installed = sorted(["%s==%s" % (i.key, i.version) for i in installed_packages])
+print(installed)
+
+from flask import Flask, render_template, request, redirect, session, send_file, jsonify
 
 from flask_sqlalchemy import SQLAlchemy
 import os
@@ -9,6 +16,7 @@ from fpdf import FPDF
 import urllib.parse
 from datetime import datetime
 from sqlalchemy import func
+
 
 
 app = Flask(__name__)
@@ -342,5 +350,6 @@ if __name__ == "__main__":
     from sys import executable
     import subprocess
     subprocess.run([executable, "-m", "flask", "run", "--host=0.0.0.0", f"--port={port}"])
+
 
 
